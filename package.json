@@ -1,6 +1,6 @@
 {
   "name": "@tychenjiajun/art",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AI-driven RAW photo processor that generates optimized PP3 profiles for RawTherapee",
   "engines": {
     "node": ">=18"
