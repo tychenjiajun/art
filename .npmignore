@@ -1,0 +1,10 @@
+src/**/*
+node_modules/**/*
+pnpm-lock.yaml
+renovate.json
+.gitignore
+.github/**/*
+.prettierrc
+test/**/*
+dist/test/**/*
+.vscode/**/*

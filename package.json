@@ -1,0 +1,104 @@
+{
+  "name": "@tychenjiajun/art",
+  "version": "1.0.0",
+  "description": "AI-driven RAW photo processor that generates optimized PP3 profiles for RawTherapee",
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/agent.js",
+  "types": "./dist/agent.d.ts",
+  "bin": {
+    "art": "./dist/bin.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "postbuild": "chmod +x ./dist/bin.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prepare": "pnpm build"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^1.1.17",
+    "@ai-sdk/google": "^1.1.25",
+    "@ai-sdk/openai": "^1.2.5",
+    "@ai-sdk/openai-compatible": "^0.1.15",
+    "@ai-sdk/xai": "^1.1.15",
+    "@sindresorhus/is": "^7.0.1",
+    "ai": "^4.1.60",
+    "commander": "^13.1.0",
+    "execa": "^9.5.2",
+    "fast-xml-parser": "^5.0.9"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@types/node": "^22.13.10",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/parser": "^8.26.1",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-import-resolver-typescript": "^3.8.7",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.3",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-unicorn": "^57.0.0",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.1",
+    "vitest": "^3.0.8"
+  },
+  "keywords": [
+    "ai",
+    "raw",
+    "photography",
+    "rawtherapee",
+    "pp3",
+    "image-processing",
+    "cli",
+    "dng",
+    "nef",
+    "cr2",
+    "arw",
+    "computer-vision",
+    "photo-editing",
+    "batch-processing"
+  ],
+  "author": {
+    "name": "Jiajun Chen",
+    "email": "tychenjiajun@live.cn",
+    "url": "https://github.com/tychenjiajun"
+  },
+  "license": "GPL-2.0-only",
+  "packageManager": "pnpm@10.6.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tychenjiajun/art.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tychenjiajun/art/issues"
+  },
+  "homepage": "https://github.com/tychenjiajun/art#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/agent.d.ts",
+      "import": "./dist/agent.js"
+    },
+    "./provider": {
+      "types": "./dist/provider.d.ts",
+      "import": "./dist/provider.js"
+    },
+    "./raw-therapee-wrap": {
+      "types": "./dist/raw-therapee-wrap.d.ts",
+      "import": "./dist/raw-therapee-wrap.js"
+    }
+  }
+}
