@@ -210,7 +210,3 @@ art/
 ## License
 
 [GPL-2.0](LICENSE) (matching RawTherapee's license)
-
-## Author
-
-Jiajun Chen (tychenjiajun@live.cn)
