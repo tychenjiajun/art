@@ -210,7 +210,3 @@ art/
 ## 许可证
 
 [GPL-2.0](LICENSE)（与RawTherapee使用相同的许可证）
-
-## 作者
-
-陈嘉俊 (tychenjiajun@live.cn)
