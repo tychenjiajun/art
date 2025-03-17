@@ -69,6 +69,7 @@ art <input> [options]
   -v, --verbose           启用详细日志
   -k, --keep-preview      保留预览图片
   -q, --quality <n>       输出图像质量（0-100）
+  --base <path>           基于此PP3文件进行改进
   -h, --help             显示帮助信息
   -V, --version          显示版本号
 ```
@@ -176,6 +177,9 @@ art input.dng -q 95
 
 # 启用详细日志
 art input.dng -v
+
+# 使用基础PP3文件
+art input.dng --base base.pp3
 ```
 
 ## 开发

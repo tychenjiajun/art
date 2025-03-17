@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import { convertDngToJpegWithPP3 } from "./raw-therapee-wrap.js";
-import { generatePP3FromDng } from "./agent.js";
+import { generatePP3FromDng, generatePP3FromDngWithBase } from "./agent.js";
 import path from "node:path";
 import fs from "node:fs";
 import packageJson from "../package.json" with { type: "json" };
@@ -18,6 +18,7 @@ interface ProcessImageOptions {
   keepPreview?: boolean;
   quality?: number;
   prompt?: string;
+  base?: string;
 }
 
 export async function processImage(
@@ -50,16 +51,28 @@ export async function processImage(
   }
 
   // Generate PP3 content
-  const pp3Content = await generatePP3FromDng({
-    inputPath,
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    providerName: options.provider || "openai",
-    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-    visionModel: options.model || "gpt-4-vision-preview",
-    verbose: options.verbose,
-    keepPreview: options.keepPreview,
-    prompt: options.prompt,
-  });
+  const pp3Content = options.base
+    ? await generatePP3FromDngWithBase({
+        inputPath,
+        basePP3Path: options.base,
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        providerName: options.provider || "openai",
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        visionModel: options.model || "gpt-4-vision-preview",
+        verbose: options.verbose,
+        keepPreview: options.keepPreview,
+        prompt: options.prompt,
+      })
+    : await generatePP3FromDng({
+        inputPath,
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        providerName: options.provider || "openai",
+        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+        visionModel: options.model || "gpt-4-vision-preview",
+        verbose: options.verbose,
+        keepPreview: options.keepPreview,
+        prompt: options.prompt,
+      });
 
   if (!pp3Content) {
     throw new Error("Failed to generate PP3 content");
@@ -106,6 +119,7 @@ program
   .option("-v, --verbose", "Enable verbose logging")
   .option("-k, --keep-preview", "Keep the preview.jpg file after processing")
   .option("-q, --quality <n>", "Quality of the output image")
+  .option("--base <path>", "Base PP3 file to improve upon")
   .action(async (input: string, options: ProcessImageOptions) => {
     try {
       await processImage(input, options);

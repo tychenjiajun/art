@@ -69,6 +69,7 @@ Options:
   -v, --verbose           Enable verbose logging
   -k, --keep-preview      Keep the preview.jpg file after processing
   -q, --quality <n>       Quality of the output image (0-100)
+  --base <path>           Base PP3 file to improve upon
   -h, --help             Display help for command
   -V, --version          Output the version number
 ```
@@ -176,6 +177,9 @@ art input.dng -q 95
 
 # Enable verbose logging
 art input.dng -v
+
+# Use base PP3 file
+art input.dng --base base.pp3
 ```
 
 ## Development

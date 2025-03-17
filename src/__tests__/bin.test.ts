@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { processImage } from "../src/bin.js";
-import { generatePP3FromDng } from "../src/agent.js";
-import { convertDngToJpegWithPP3 } from "../src/raw-therapee-wrap.js";
+import { processImage } from "../bin.js";
+import { generatePP3FromDng } from "../agent.js";
+import { convertDngToJpegWithPP3 } from "../raw-therapee-wrap.js";
 import fs from "node:fs";
-import path from "node:path";
 
 // Mock dependencies
 vi.mock("../src/agent.js");
@@ -30,16 +29,16 @@ describe("bin.ts", () => {
     vi.clearAllMocks();
     // Default successful mocks
     vi.mocked(generatePP3FromDng).mockResolvedValue(mockPP3Content);
-    vi.mocked(convertDngToJpegWithPP3).mockResolvedValue(undefined);
-    vi.mocked(fs.promises.access).mockResolvedValue(undefined);
-    vi.mocked(fs.promises.writeFile).mockResolvedValue(undefined);
-    vi.mocked(fs.promises.unlink).mockResolvedValue(undefined);
+    vi.mocked(convertDngToJpegWithPP3).mockResolvedValue();
+    vi.mocked(fs.promises.access).mockResolvedValue();
+    vi.mocked(fs.promises.writeFile).mockResolvedValue();
+    vi.mocked(fs.promises.unlink).mockResolvedValue();
   });
 
   it("accepts valid RAW file extensions", async () => {
     const validExtensions = [".dng", ".nef", ".cr2", ".arw"];
-    for (const ext of validExtensions) {
-      const result = await processImage(`input${ext}`);
+    for (const extension of validExtensions) {
+      const result = await processImage(`input${extension}`);
       expect(result).toBeDefined();
     }
   });

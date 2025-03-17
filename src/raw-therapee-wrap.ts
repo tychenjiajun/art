@@ -88,10 +88,14 @@ export async function convertDngToJpegWithPP3({
   input,
   output,
   pp3Path,
+  quality = 100,
+  subsampling = 3,
 }: {
   input: string;
   output: string;
   pp3Path: string;
+  quality?: number;
+  subsampling?: number;
 }): Promise<void> {
   if (!pp3Path) {
     throw new Error("PP3 profile path is required");
@@ -129,8 +133,8 @@ export async function convertDngToJpegWithPP3({
       "-Y", // Overwrite output
       "-o",
       output,
-      "-j100",
-      "-js3",
+      `-j${quality.toString()}`,
+      `-js${subsampling.toString()}`,
       "-p",
       pp3Path,
       "-c",

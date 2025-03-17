@@ -29,7 +29,6 @@ export default [
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
         sourceType: "module",
-        allowDefaultProject: true,
       },
     },
   },
