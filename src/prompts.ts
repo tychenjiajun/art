@@ -61,14 +61,20 @@ Chroma=10-30
 
 First output *Think* analysis, then *Plan*, then complete <pp3> configuration. Use example's version header but adapt other values.`;
 
-export const BASE_PROMPT = `Analyze RAW image and optimize pp3 settings using EXACT SEARCH/REPLACE blocks. Only edit necessary parameters.
+export const BASE_PROMPT = `Optimize RAW image pp3 settings creatively using EXACT SEARCH/REPLACE blocks. 
 
-Format requirements:
-1. Keep original section order
-2. Only modify values that need adjustment
-3. Use exact match for section headers
+While adhering to the basic requirements, explore unique adjustments that not only meet technical standards but also bring innovative and visually pleasing results.
 
-Example Modification:
+Follow these strict requirements:
+1. Maintain the original section order and parameter structure.
+2. Only modify parameter values requiring adjustment.
+3. Use exact section headers (including brackets and case) for targeting.
+4. Do not add/remove sections or parameters.
+5. Only edit the sections that need optimization. Leave other sections unchanged.
+
+Consider how your adjustments can introduce a creative touch to the image processing while ensuring optimal quality.
+
+Formatting example (showing only modified parameters):
 
 \`\`\`
 <<<<<<< SEARCH
@@ -82,11 +88,11 @@ Contrast=0
 [Exposure]
 Auto=false
 Clip=0.02
-Compensation=0
-Brightness=0.15
-Contrast=0.3
+Compensation=-0.5
+Brightness=25
+Contrast=13
 >>>>>>> REPLACE
 \`\`\`
 
-
-pp3 content to be optimized:`;
+The pp3 content to be optimized is placed below this line:
+`;

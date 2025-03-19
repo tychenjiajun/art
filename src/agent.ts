@@ -209,8 +209,6 @@ export async function generatePP3FromDngWithBase({
       }
     }
 
-    console.log(includedSections);
-
     // Get provider instance
     let aiProvider;
     try {
@@ -310,8 +308,7 @@ export async function generatePP3FromDngWithBase({
       throw new Error("AI response was empty or in an unexpected format");
     }
 
-    if (verbose)
-      console.log("Received response from AI provider", responseText);
+    if (verbose) console.log("Received response from AI provider");
 
     // parse search/replace blocks
     // 解析搜索/替换块
@@ -358,8 +355,8 @@ export async function generatePP3FromDngWithBase({
     const searchReplaceBlocks = parse_search_replace_blocks(responseText);
 
     if (searchReplaceBlocks.length === 0) {
-      if (verbose) console.log("未找到有效的搜索/替换块");
-      throw new Error("未找到有效的搜索/替换块");
+      if (verbose) console.log("No valid search/replace blocks found");
+      throw new Error("No valid search/replace blocks found");
     }
 
     // 读取基础 pp3 文件
@@ -369,12 +366,14 @@ export async function generatePP3FromDngWithBase({
     for (const block of searchReplaceBlocks) {
       const { search, replace } = block;
 
+      // Check if search or replace string is empty
       if (!search || !replace) {
-        throw new Error("搜索/替换块格式无效");
+        throw new Error("Invalid search/replace block format");
       }
-
-      if (!pp3Content.includes(search.trim())) {
-        console.log("未找到匹配的搜索字符串:", search, pp3Content);
+      // Log the search and replace strings for debugging
+      if (verbose) {
+        console.log(`Searching for: ${search}`);
+        console.log(`Replacing with: ${replace}`);
       }
 
       pp3Content = pp3Content.replace(search.trim(), replace.trim());
