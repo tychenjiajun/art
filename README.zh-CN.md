@@ -195,22 +195,6 @@ pnpm test
 pnpm build
 ```
 
-### 项目结构
-
-```
-art/
-├── src/
-│   ├── agent.ts           # AI集成和PP3生成
-│   ├── bin.ts            # CLI实现
-│   ├── provider.ts       # AI提供商管理
-│   └── raw-therapee-wrap.ts  # RawTherapee接口
-├── test/
-│   ├── agent.test.ts
-│   ├── bin.test.ts
-│   └── raw-therapee-wrap.test.ts
-└── package.json
-```
-
 ## 许可证
 
 [GPL-2.0](LICENSE)（与RawTherapee使用相同的许可证）

@@ -63,34 +63,30 @@ First output *Think* analysis, then *Plan*, then complete <pp3> configuration. U
 
 export const BASE_PROMPT = `Analyze RAW image and optimize pp3 settings using EXACT SEARCH/REPLACE blocks. Only edit necessary parameters.
 
-# Technical Assessment
-• Lighting Analysis: <identify exposure issues/color casts>
-• Histogram Status: <clipping/balance in channels>
-• Color Evaluation: <dominant hues/white balance>
-• Detail Preservation: <noise/sharpness levels>
-
-# Optimization Strategy
-• Exposure: <EV compensation + highlight recovery>
-• Color: <temperature/tint + saturation approach>
-• Curve: <contrast adjustment method>
-• Detail: <noise reduction/sharpening balance>
-
 Format requirements:
 1. Keep original section order
 2. Only modify values that need adjustment
 3. Use exact match for section headers
 
 Example Modification:
+
+\`\`\`
 <<<<<<< SEARCH
 [Exposure]
-Auto=0
+Auto=false
+Clip=0.02
+Compensation=0
 Brightness=0
 Contrast=0
 =======
 [Exposure]
-Auto=0
+Auto=false
+Clip=0.02
+Compensation=0
 Brightness=0.15
 Contrast=0.3
 >>>>>>> REPLACE
+\`\`\`
+
 
 pp3 content to be optimized:`;

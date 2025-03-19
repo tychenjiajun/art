@@ -8,7 +8,7 @@ export const XML_PARSER_OPTIONS: XMLParserOptions = {
 };
 
 export const PREVIEW_SETTINGS: PreviewSettings = {
-  quality: 90,
+  quality: 80,
 };
 
 export const OUTPUT_SETTINGS: OutputSettings = {

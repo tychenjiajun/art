@@ -6,6 +6,7 @@ export const openaiCompatible = createOpenAICompatible({
   name: "openai-compatible",
   headers: {
     "HTTP-Referer": "https://github.com/tychenjiajun/art", // Optional. Site URL for rankings on openrouter.ai.
-    "X-Title": "Art", // Optional. Site title for rankings on openrouter.ai.
+    "X-Title":
+      "Art - AI-driven RAW photo processor that generates optimized PP3 profiles for RawTherapee", // Optional. Site title for rankings on openrouter.ai.
   },
 });

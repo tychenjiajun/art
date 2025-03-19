@@ -19,6 +19,7 @@ interface ProcessImageOptions {
   quality?: number;
   prompt?: string;
   base?: string;
+  sections?: string;
 }
 
 export async function processImage(
@@ -62,6 +63,7 @@ export async function processImage(
         verbose: options.verbose,
         keepPreview: options.keepPreview,
         prompt: options.prompt,
+        sections: options.sections?.split(",").filter((s) => s.trim() !== ""),
       })
     : await generatePP3FromDng({
         inputPath,
@@ -119,6 +121,11 @@ program
   .option("-v, --verbose", "Enable verbose logging")
   .option("-k, --keep-preview", "Keep the preview.jpg file after processing")
   .option("-q, --quality <n>", "Quality of the output image")
+  .option(
+    "--sections <names>",
+    "Comma-separated list of PP3 sections to process",
+    (value) => value.split(","),
+  )
   .option("--base <path>", "Base PP3 file to improve upon")
   .action(async (input: string, options: ProcessImageOptions) => {
     try {

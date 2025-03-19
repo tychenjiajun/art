@@ -24,6 +24,20 @@ export async function generatePP3FromDngWithBase({
   verbose = false,
   keepPreview = false,
   prompt = BASE_PROMPT,
+  sections = [
+    "Exposure",
+    "Retinex",
+    "Local Contrast",
+    "Channel Mixer",
+    "Luminance Curve",
+    "Vibrance",
+    "White Balance",
+    "Color appearance",
+    "Shadows & Highlights",
+    "Color Management",
+    "RGB Curves",
+    "ColorToning",
+  ],
 }: {
   inputPath: string;
   basePP3Path: string;
@@ -32,6 +46,7 @@ export async function generatePP3FromDngWithBase({
   verbose?: boolean;
   keepPreview?: boolean;
   prompt?: string;
+  sections?: string[];
 }): Promise<string> {
   // Validate input file extension
   const extension = inputPath.toLowerCase().slice(inputPath.lastIndexOf("."));
@@ -155,6 +170,47 @@ export async function generatePP3FromDngWithBase({
       );
     }
 
+    const lines = basePP3Content.split("\n");
+
+    const includedSections: string[] = [];
+    const excludedSections: string[] = [];
+
+    const sectionOrders: string[] = []; // 明确类型为 string[]
+
+    let currentSection = "";
+    let currentSectionName = "";
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith("[")) {
+        if (currentSection) {
+          if (sections.includes(currentSectionName)) {
+            includedSections.push(currentSection);
+          } else {
+            excludedSections.push(currentSection);
+          }
+        }
+
+        const sectionName = trimmedLine.slice(1, -1);
+        currentSection = trimmedLine;
+        currentSectionName = sectionName;
+        sectionOrders.push(sectionName);
+      } else {
+        currentSection += `\n${trimmedLine}`;
+      }
+    }
+
+    // 处理最后一个 section
+    if (currentSection) {
+      if (sections.includes(currentSectionName)) {
+        includedSections.push(currentSection);
+      } else {
+        excludedSections.push(currentSection);
+      }
+    }
+
+    console.log(includedSections);
+
     // Get provider instance
     let aiProvider;
     try {
@@ -176,6 +232,8 @@ export async function generatePP3FromDngWithBase({
       );
     }
 
+    const toBeEdited = includedSections.join("\n");
+    const extractedText = `${prompt}\n\n${toBeEdited}`;
     // Generate PP3 using AI
     if (verbose) console.log("Sending request to AI provider...");
     let response;
@@ -188,7 +246,7 @@ export async function generatePP3FromDngWithBase({
             content: [
               {
                 type: "text",
-                text: `${prompt}\n\n${basePP3Content}`,
+                text: extractedText,
               },
               {
                 type: "image",
@@ -252,37 +310,116 @@ export async function generatePP3FromDngWithBase({
       throw new Error("AI response was empty or in an unexpected format");
     }
 
-    if (verbose) console.log("Received response from AI provider");
+    if (verbose)
+      console.log("Received response from AI provider", responseText);
 
     // parse search/replace blocks
     // 解析搜索/替换块
-    const searchReplaceBlocks = responseText.match(
-      /<<<<<<< SEARCH\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> REPLACE/g,
-    );
+    function parse_search_replace_blocks(
+      text: string,
+    ): { search: string; replace: string }[] {
+      const blocks: { search: string; replace: string }[] = [];
+      let current_block: { search: string[]; replace: string[] } = {
+        search: [],
+        replace: [],
+      };
 
-    if (!searchReplaceBlocks || searchReplaceBlocks.length === 0) {
-      if (verbose) console.log("未找到有效的搜索/替换块", responseText);
+      let isInSearch = false;
+      let isInReplace = false;
+
+      // Split text into lines and iterate through them
+      const lines = text.split("\n");
+      for (const line of lines) {
+        if (line.startsWith("<<<<<<< SEARCH")) {
+          isInSearch = true;
+          isInReplace = false;
+          current_block = { search: [], replace: [] };
+        } else if (line.startsWith("=======")) {
+          isInSearch = false;
+          isInReplace = true;
+        } else if (line.startsWith(">>>>>>> REPLACE")) {
+          isInSearch = false;
+          isInReplace = false;
+          blocks.push({
+            search: current_block.search.join("\n"),
+            replace: current_block.replace.join("\n"),
+          });
+        } else {
+          if (isInSearch) {
+            current_block.search.push(line);
+          } else if (isInReplace) {
+            current_block.replace.push(line);
+          }
+        }
+      }
+
+      return blocks;
+    }
+    const searchReplaceBlocks = parse_search_replace_blocks(responseText);
+
+    if (searchReplaceBlocks.length === 0) {
+      if (verbose) console.log("未找到有效的搜索/替换块");
       throw new Error("未找到有效的搜索/替换块");
     }
 
     // 读取基础 pp3 文件
-    let pp3Content = await fs.promises.readFile(basePP3Path, "utf8");
+    let pp3Content = toBeEdited;
 
     // 应用每个搜索/替换块
     for (const block of searchReplaceBlocks) {
-      const [, search, replace] =
-        /<<<<<<< SEARCH\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> REPLACE/.exec(
-          block,
-        ) ?? [];
+      const { search, replace } = block;
 
       if (!search || !replace) {
         throw new Error("搜索/替换块格式无效");
       }
 
+      if (!pp3Content.includes(search.trim())) {
+        console.log("未找到匹配的搜索字符串:", search, pp3Content);
+      }
+
       pp3Content = pp3Content.replace(search.trim(), replace.trim());
     }
 
-    return pp3Content;
+    const editedLines = pp3Content.split("\n");
+
+    const editedSections: string[] = [];
+
+    currentSection = "";
+
+    for (const line of editedLines) {
+      const trimmedLine = line.trim();
+      if (trimmedLine.startsWith("[")) {
+        if (currentSection !== "") {
+          editedSections.push(currentSection);
+          currentSection = "";
+        }
+        currentSection = line;
+      } else {
+        currentSection += `\n${line}`;
+      }
+    }
+
+    // 处理最后一个 section
+    if (currentSection) {
+      editedSections.push(currentSection);
+    }
+
+    return sectionOrders
+      .map((sectionName) => {
+        return (
+          editedSections.find((section) =>
+            section.startsWith(`[${sectionName}]`),
+          ) ??
+          includedSections.find((section) =>
+            section.startsWith(`[${sectionName}]`),
+          ) ??
+          excludedSections.find((section) =>
+            section.startsWith(`[${sectionName}]`),
+          ) ??
+          ""
+        );
+      })
+      .join("\n");
   } catch (error: unknown) {
     if (error instanceof Error) {
       if (verbose) {
