@@ -1,6 +1,6 @@
 # ART - AI-Powered RawTherapee Profile Generator
 
-[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/@tychenjiajun/art.svg)](https://www.npmjs.com/package/@tychenjiajun/art)
 
 ART (AI RawTherapee) is a command-line tool that leverages artificial intelligence to analyze RAW photos and generate optimized processing profiles for [RawTherapee](https://www.rawtherapee.com/), a powerful open-source RAW image processing software. By combining computer vision AI with RawTherapee's advanced processing capabilities, ART helps you achieve professional-quality results automatically.
 
