@@ -64,26 +64,18 @@ For optimal results:
 
 ### Command Options
 
-```
-art <input> [options]
-
-Arguments:
-  input                    Input RAW file path (DNG, NEF, CR2, ARW)
-
-Options:
-  -o, --output <path>     Output file path (defaults to input.pp3 or input_processed.jpg)
-  --pp3-only              Only generate PP3 file without processing the image
-  -p, --prompt <text>     Custom prompt text for AI analysis
-  --provider <n>          AI provider to use (default: "openai")
-  --model <n>             Model name to use (default: "gpt-4-vision-preview")
-  -v, --verbose           Enable verbose logging
-  -k, --keep-preview      Keep the preview.jpg file after processing
-  -q, --quality <n>       Quality of the output image (0-100)
-  --sections <names>      Comma-separated list of PP3 sections to process
-  --base <path>           Base PP3 file to improve upon
-  -h, --help             Display help for command
-  -V, --version          Output the version number
-```
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-o, --output <path>` | Output file path | `input.pp3`/`input_processed.jpg` |
+| `--pp3-only` | Generate PP3 without processing | `false` |
+| `-p, --prompt <text>` | Custom AI analysis prompt | Built-in prompt |
+| `--provider <name>` | AI provider (`openai`, `anthropic`, `google`, `xai`) | `openai` |
+| `--model <name>` | Model version | `gpt-4-vision-preview` |
+| `-v, --verbose` | Enable detailed logging | `false` |
+| `-k, --keep-preview` | Retain preview JPEG | `false` |
+| `-q, --quality <0-100>` | Output image quality | `100` |
+| `--sections <names>` | PP3 sections to process | All sections |
+| `--base <path>` | Base PP3 profile for incremental improvements | None |
 
 ### Integration with RawTherapee
 
@@ -102,40 +94,52 @@ ART works seamlessly with RawTherapee in two ways:
 
 ### AI-Generated PP3 Profiles
 
-The `--base` option enables the AI to:
-1. Preserve intentional adjustments from existing profiles
-2. Make targeted enhancements rather than full overhauls
-3. Maintain consistent look across photo series
-4. Respect established color grading and tonality
+The AI follows a structured workflow to create optimized processing parameters:
 
-The AI analyzes your photos and generates RawTherapee PP3 profiles focusing on:
+**Analysis Framework**
+1. **Think Phase**:
+   - Evaluates histogram distribution and clipping points
+   - Analyzes color relationships and texture complexity
+   - Detects lighting conditions and optical characteristics
 
-1. **Exposure & Tone**:
+2. **Plan Phase**:
+   - Determines exposure compensation needs (±2.0 EV range)
+   - Designs highlight/shadow recovery strategy
+   - Creates color adjustment roadmap (WB ±1500K temp range)
+   - Develops detail enhancement approach
 
-   - Auto-exposure adjustment
-   - Highlight recovery
-   - Shadow enhancement
-   - Dynamic range optimization
+3. **Action Phase**:
+   - Generates PP3 parameters with safe value ranges:
+     ```
+     [Exposure]
+     Compensation=±2.0
+     
+     [White Balance]
+     Temperature=6500±1500
+     Green=0.8-1.2
+     
+     [Sharpening]
+     Amount=50-400
+     Radius=0.5-1.5
+     ```
 
-2. **Color & White Balance**:
+**Analysis Framework** (Base Profile Workflow):
+1. **Think Phase**:
+   - Evaluates histogram distribution and clipping points
+   - Analyzes color relationships and texture complexity
+   - Detects lighting conditions and optical characteristics
 
-   - Color temperature correction
-   - Tint adjustment
-   - Vibrance and saturation
-   - Color balance
+2. **Plan Phase**:
+   - Determines exposure compensation needs (±2.0 EV range)
+   - Designs highlight/shadow recovery strategy
+   - Creates color adjustment roadmap (WB ±1500K temp range)
+   - Develops detail enhancement approach
 
-3. **Detail Enhancement**:
-
-   - Sharpening parameters
-   - Noise reduction (luminance/chrominance)
-   - Texture preservation
-   - Detail recovery
-
-4. **Advanced Processing**:
-   - Tone curves
-   - Lab adjustments
-   - Film simulation
-   - Output sharpening
+3. **Action Phase**:
+   - Generates PP3 parameters with safe value ranges
+   - Performs differential analysis on existing PP3 files
+   - Preserves manually adjusted parameters
+   - Optimizes through parameter mapping and version-aware inheritance
 
 ### Preview File Handling
 
