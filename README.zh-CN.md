@@ -1,5 +1,7 @@
 # ART - AI驱动的RawTherapee配置生成器
 
+https://github.com/user-attachments/assets/95bf9e8d-0c97-442d-8068-a5d27e094f18
+
 [![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/@tychenjiajun/art.svg)](https://www.npmjs.com/package/@tychenjiajun/art)
 
 ART（AI RawTherapee）是一个命令行工具，它借助人工智能分析RAW照片，并为[RawTherapee](https://www.rawtherapee.com/)（一款强大的开源RAW图像处理软件）生成优化的处理配置文件。通过将计算机视觉AI与RawTherapee的先进处理能力相结合，ART帮助您自动获得专业级的处理效果。
