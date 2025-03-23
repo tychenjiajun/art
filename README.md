@@ -145,7 +145,7 @@ The AI follows a structured workflow to create optimized processing parameters:
 
 ### Preview File Handling
 
-During processing, ART:
+During processing, AI-PP3:
 
 1. Creates a preview JPEG (quality=80) for AI analysis
 2. By default, removes the preview after processing

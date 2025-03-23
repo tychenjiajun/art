@@ -33,7 +33,7 @@ npm install -g ai-pp3
 
 ## 使用方法
 
-ART提供两种主要操作模式：
+AI-PP3提供两种主要操作模式：
 
 1. 全处理模式（默认）：
 
@@ -81,9 +81,9 @@ ART提供两种主要操作模式：
 
 ### 与RawTherapee集成
 
-ART以两种方式与RawTherapee无缝协作：
+AI-PP3以两种方式与RawTherapee无缝协作：
 
-1. **自动处理**：默认情况下，ART使用RawTherapee的CLI（`rawtherapee-cli`）来：
+1. **自动处理**：默认情况下，AI-PP3使用RawTherapee的CLI（`rawtherapee-cli`）来：
 
    - 生成用于AI分析的预览JPEG（质量=80，子采样=3）
    - 使用AI生成的PP3配置文件处理最终图像（质量=100）
@@ -145,7 +145,7 @@ AI遵循结构化工作流程创建优化参数：
 
 ### 预览文件处理
 
-在处理过程中，ART会：
+在处理过程中，AI-PP3会：
 
 1. 创建用于AI分析的预览JPEG（质量=80）
 2. 默认情况下，处理后删除预览
@@ -154,7 +154,7 @@ AI遵循结构化工作流程创建优化参数：
 
 ### AI提供商支持
 
-ART支持多个AI提供商：
+AI-PP3支持多个AI提供商：
 
 - OpenAI（默认）：GPT - 4 Vision
 - 兼容OpenAI的API：兼容OpenAI的API（例如OpenRouter）
@@ -164,7 +164,7 @@ ART支持多个AI提供商：
 
 #### 设置API密钥
 
-ART使用环境变量进行API密钥配置。您可以在shell中设置它们，也可以在工作目录中创建一个`.env`文件：
+AI-PP3使用环境变量进行API密钥配置。您可以在shell中设置它们，也可以在工作目录中创建一个`.env`文件：
 
 ```bash
 # OpenAI
