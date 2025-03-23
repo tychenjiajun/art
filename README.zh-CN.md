@@ -1,10 +1,10 @@
-# ART - AI驱动的RawTherapee配置生成器
+# AI-PP3 - AI驱动的RawTherapee配置生成器
 
 https://github.com/user-attachments/assets/95bf9e8d-0c97-442d-8068-a5d27e094f18
 
-[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/@tychenjiajun/art.svg)](https://www.npmjs.com/package/@tychenjiajun/art)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/ai-pp3.svg)](https://www.npmjs.com/package/ai-pp3)
 
-ART（AI RawTherapee）是一个命令行工具，它借助人工智能分析RAW照片，并为[RawTherapee](https://www.rawtherapee.com/)（一款强大的开源RAW图像处理软件）生成优化的处理配置文件。通过将计算机视觉AI与RawTherapee的先进处理能力相结合，ART帮助您自动获得专业级的处理效果。
+AI-PP3（AI RawTherapee）是一个命令行工具，它借助人工智能分析RAW照片，并为[RawTherapee](https://www.rawtherapee.com/)（一款强大的开源RAW图像处理软件）生成优化的处理配置文件。通过将计算机视觉AI与RawTherapee的先进处理能力相结合，AI-PP3帮助您自动获得专业级的处理效果。
 
 ## 特性
 
@@ -28,7 +28,7 @@ ART（AI RawTherapee）是一个命令行工具，它借助人工智能分析RAW
 
 ```bash
 # 全局安装
-npm install -g @tychenjiajun/art
+npm install -g ai-pp3
 ```
 
 ## 使用方法
@@ -39,21 +39,21 @@ ART提供两种主要操作模式：
 
    ```bash
    # 生成PP3并处理图像
-   art input.dng
+   ai-pp3 input.dng
 
    # 自定义输出路径
-   art input.dng -o output.jpg    # 创建output.pp3和output.jpg
-   art input.dng -o output.pp3    # 创建output.pp3和output.jpg
+   ai-pp3 input.dng -o output.jpg    # 创建output.pp3和output.jpg
+   ai-pp3 input.dng -o output.pp3    # 创建output.pp3和output.jpg
    ```
 
 2. 仅PP3模式（用于RawTherapee GUI）：
 
    ```bash
    # 仅生成PP3配置文件
-   art input.dng --pp3-only
+   ai-pp3 input.dng --pp3-only
 
    # 自定义PP3输出路径
-   art input.dng --pp3-only -o custom.pp3
+   ai-pp3 input.dng --pp3-only -o custom.pp3
    ```
 
 ### 推荐实践
@@ -188,28 +188,28 @@ export XAI_API_KEY=your_xai_key
 
 ```bash
 # 使用默认的OpenAI提供商
-art input.dng
+ai-pp3 input.dng
 
 # 使用Anthropic Claude 3 Sonnet
-art input.dng --provider anthropic --model claude-3-sonnet-20240229
+ai-pp3 input.dng --provider anthropic --model claude-3-sonnet-20240229
 
 # 使用Google Gemini Pro Vision
-art input.dng --provider google --model gemini-pro-vision
+ai-pp3 input.dng --provider google --model gemini-pro-vision
 
 # 使用xAI Grok
-art input.dng --provider xai --model grok-1
+ai-pp3 input.dng --provider xai --model grok-1
 
 # 使用自定义提示
-art input.dng -p "分析这张照片并创建自然的胶片风格外观"
+ai-pp3 input.dng -p "分析这张照片并创建自然的胶片风格外观"
 
 # 设置输出质量
-art input.dng -q 95
+ai-pp3 input.dng -q 95
 
 # 启用详细日志记录
-art input.dng -v
+ai-pp3 input.dng -v
 
 # 使用基础PP3文件
-art input.dng --base base.pp3  # 推荐用于最佳效果 - 基于现有配置文件改进
+ai-pp3 input.dng --base base.pp3  # 推荐用于最佳效果 - 基于现有配置文件改进
 ```
 
 ## 开发

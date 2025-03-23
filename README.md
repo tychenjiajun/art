@@ -1,10 +1,10 @@
-# ART - AI-Powered RawTherapee Profile Generator
+# AI-PP3 - AI-Powered RawTherapee Profile Generator
 
 https://github.com/user-attachments/assets/95bf9e8d-0c97-442d-8068-a5d27e094f18
 
-[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/@tychenjiajun/art.svg)](https://www.npmjs.com/package/@tychenjiajun/art)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/ai-pp3.svg)](https://www.npmjs.com/package/ai-pp3)
 
-ART (AI RawTherapee) is a command-line tool that leverages artificial intelligence to analyze RAW photos and generate optimized processing profiles for [RawTherapee](https://www.rawtherapee.com/), a powerful open-source RAW image processing software. By combining computer vision AI with RawTherapee's advanced processing capabilities, ART helps you achieve professional-quality results automatically.
+AI-PP3 (AI RawTherapee) is a command-line tool that leverages artificial intelligence to analyze RAW photos and generate optimized processing profiles for [RawTherapee](https://www.rawtherapee.com/), a powerful open-source RAW image processing software. By combining computer vision AI with RawTherapee's advanced processing capabilities, AI-PP3 helps you achieve professional-quality results automatically.
 
 ## Features
 
@@ -28,38 +28,38 @@ ART (AI RawTherapee) is a command-line tool that leverages artificial intelligen
 
 ```bash
 # Install globally
-npm install -g @tychenjiajun/art
+npm install -g ai-pp3
 ```
 
 ## Usage
 
-ART provides two main modes of operation:
+AI-PP3 provides two main modes of operation:
 
 1. Full Processing Mode (default):
 
    ```bash
    # Generate PP3 and process image
-   art input.dng
+   ai-pp3 input.dng
 
    # Custom output paths
-   art input.dng -o output.jpg    # Creates output.pp3 and output.jpg
-   art input.dng -o output.pp3    # Creates output.pp3 and output.jpg
+   ai-pp3 input.dng -o output.jpg    # Creates output.pp3 and output.jpg
+   ai-pp3 input.dng -o output.pp3    # Creates output.pp3 and output.jpg
    ```
 
 2. PP3-Only Mode (for use with RawTherapee GUI):
 
    ```bash
    # Generate only the PP3 profile
-   art input.dng --pp3-only
+   ai-pp3 input.dng --pp3-only
 
    # Custom PP3 output path
-   art input.dng --pp3-only -o custom.pp3
+   ai-pp3 input.dng --pp3-only -o custom.pp3
    ```
 
 ### Recommended Practices
 
 For optimal results:
-- 🏁 Always start with `--base` when processing similar photo sequences
+- 🏁 Always stai-pp3 with `--base` when processing similar photo sequences
 - 🔧 Use existing PP3 profiles as baseline for consistent adjustments
 - 🧩 Combine AI suggestions with your proven processing recipes
 - 🔄 Iteratively refine base files between processing sessions
@@ -81,9 +81,9 @@ For optimal results:
 
 ### Integration with RawTherapee
 
-ART works seamlessly with RawTherapee in two ways:
+AI-PP3 works seamlessly with RawTherapee in two ways:
 
-1. **Automatic Processing**: By default, ART uses RawTherapee's CLI (`rawtherapee-cli`) to:
+1. **Automatic Processing**: By default, AI-PP3 uses RawTherapee's CLI (`rawtherapee-cli`) to:
 
    - Generate preview JPEGs for AI analysis (quality=80, subsampling=3)
    - Process final images with the AI-generated PP3 profile (quality=100)
@@ -154,7 +154,7 @@ During processing, ART:
 
 ### AI Provider Support
 
-ART supports multiple AI providers:
+AI-PP3 supports multiple AI providers:
 
 - OpenAI (default): GPT-4 Vision
 - OpenAI-compatible: OpenAI-compatible APIs (e.g. OpenRouter)
@@ -164,7 +164,7 @@ ART supports multiple AI providers:
 
 #### Setting Up API Keys
 
-ART uses environment variables for API key configuration. You can set them in your shell or create a `.env` file in your working directory:
+AI-PP3 uses environment variables for API key configuration. You can set them in your shell or create a `.env` file in your working directory:
 
 ```bash
 # OpenAI
@@ -188,28 +188,28 @@ Configuration examples:
 
 ```bash
 # Use default OpenAI provider
-art input.dng
+ai-pp3 input.dng
 
 # Use Anthropic Claude 3 Sonnet
-art input.dng --provider anthropic --model claude-3-sonnet-20240229
+ai-pp3 input.dng --provider anthropic --model claude-3-sonnet-20240229
 
 # Use Google Gemini Pro Vision
-art input.dng --provider google --model gemini-pro-vision
+ai-pp3 input.dng --provider google --model gemini-pro-vision
 
 # Use xAI Grok
-art input.dng --provider xai --model grok-1
+ai-pp3 input.dng --provider xai --model grok-1
 
 # Use custom prompt
-art input.dng -p "Analyze this photo and create a natural, film-like look"
+ai-pp3 input.dng -p "Analyze this photo and create a natural, film-like look"
 
 # Set output quality
-art input.dng -q 95
+ai-pp3 input.dng -q 95
 
 # Enable verbose logging
-art input.dng -v
+ai-pp3 input.dng -v
 
 # Use base PP3 file
-art input.dng --base base.pp3  # Recommended for best results - builds upon existing profiles
+ai-pp3 input.dng --base base.pp3  # Recommended for best results - builds upon existing profiles
 ```
 
 ## Development

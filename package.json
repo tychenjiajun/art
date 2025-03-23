@@ -1,6 +1,6 @@
 {
-  "name": "@tychenjiajun/art",
-  "version": "1.1.1",
+  "name": "ai-pp3",
+  "version": "1.1.2",
   "description": "AI-driven RAW photo processor that generates optimized PP3 profiles for RawTherapee",
   "engines": {
     "node": ">=18"
@@ -8,7 +8,7 @@
   "main": "./dist/agent.js",
   "types": "./dist/agent.d.ts",
   "bin": {
-    "art": "./dist/bin.js"
+    "ai-pp3": "./dist/bin.js"
   },
   "type": "module",
   "scripts": {
