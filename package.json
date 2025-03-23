@@ -1,6 +1,6 @@
 {
   "name": "@tychenjiajun/art",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "AI-driven RAW photo processor that generates optimized PP3 profiles for RawTherapee",
   "engines": {
     "node": ">=18"
@@ -21,25 +21,25 @@
     "prepare": "pnpm build"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.1.17",
-    "@ai-sdk/google": "^1.1.25",
-    "@ai-sdk/openai": "^1.2.5",
-    "@ai-sdk/openai-compatible": "^0.1.15",
-    "@ai-sdk/xai": "^1.1.15",
+    "@ai-sdk/anthropic": "^1.2.0",
+    "@ai-sdk/google": "^1.2.1",
+    "@ai-sdk/openai": "^1.3.0",
+    "@ai-sdk/openai-compatible": "^0.2.0",
+    "@ai-sdk/xai": "^1.2.1",
     "@sindresorhus/is": "^7.0.1",
-    "ai": "^4.1.61",
+    "ai": "^4.2.0",
     "commander": "^13.1.0",
     "execa": "^9.5.2",
     "fast-xml-parser": "^5.0.9"
   },
   "devDependencies": {
-    "@eslint/js": "^9.22.0",
-    "@types/node": "^22.13.10",
-    "@typescript-eslint/eslint-plugin": "^8.26.1",
-    "@typescript-eslint/parser": "^8.26.1",
-    "eslint": "^9.22.0",
+    "@eslint/js": "^9.23.0",
+    "@types/node": "^22.13.11",
+    "@typescript-eslint/eslint-plugin": "^8.27.0",
+    "@typescript-eslint/parser": "^8.27.0",
+    "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
-    "eslint-import-resolver-typescript": "^4.1.1",
+    "eslint-import-resolver-typescript": "^4.2.2",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-promise": "^7.2.1",
@@ -47,7 +47,7 @@
     "globals": "^16.0.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.1",
+    "typescript-eslint": "^8.27.0",
     "vitest": "^3.0.9"
   },
   "keywords": [
@@ -72,7 +72,7 @@
     "url": "https://github.com/tychenjiajun"
   },
   "license": "GPL-2.0-only",
-  "packageManager": "pnpm@10.6.4",
+  "packageManager": "pnpm@10.6.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/tychenjiajun/art.git"

@@ -34,6 +34,7 @@ npm install -g @tychenjiajun/art
 ART provides two main modes of operation:
 
 1. Full Processing Mode (default):
+
    ```bash
    # Generate PP3 and process image
    art input.dng
@@ -44,6 +45,7 @@ ART provides two main modes of operation:
    ```
 
 2. PP3-Only Mode (for use with RawTherapee GUI):
+
    ```bash
    # Generate only the PP3 profile
    art input.dng --pp3-only
@@ -51,6 +53,14 @@ ART provides two main modes of operation:
    # Custom PP3 output path
    art input.dng --pp3-only -o custom.pp3
    ```
+
+### Recommended Practices
+
+For optimal results:
+- 🏁 Always start with `--base` when processing similar photo sequences
+- 🔧 Use existing PP3 profiles as baseline for consistent adjustments
+- 🧩 Combine AI suggestions with your proven processing recipes
+- 🔄 Iteratively refine base files between processing sessions
 
 ### Command Options
 
@@ -69,6 +79,7 @@ Options:
   -v, --verbose           Enable verbose logging
   -k, --keep-preview      Keep the preview.jpg file after processing
   -q, --quality <n>       Quality of the output image (0-100)
+  --sections <names>      Comma-separated list of PP3 sections to process
   --base <path>           Base PP3 file to improve upon
   -h, --help             Display help for command
   -V, --version          Output the version number
@@ -79,7 +90,8 @@ Options:
 ART works seamlessly with RawTherapee in two ways:
 
 1. **Automatic Processing**: By default, ART uses RawTherapee's CLI (`rawtherapee-cli`) to:
-   - Generate preview JPEGs for AI analysis (quality=90, subsampling=3)
+
+   - Generate preview JPEGs for AI analysis (quality=80, subsampling=3)
    - Process final images with the AI-generated PP3 profile (quality=100)
    - Handle various RAW formats supported by RawTherapee
 
@@ -90,21 +102,30 @@ ART works seamlessly with RawTherapee in two ways:
 
 ### AI-Generated PP3 Profiles
 
+The `--base` option enables the AI to:
+1. Preserve intentional adjustments from existing profiles
+2. Make targeted enhancements rather than full overhauls
+3. Maintain consistent look across photo series
+4. Respect established color grading and tonality
+
 The AI analyzes your photos and generates RawTherapee PP3 profiles focusing on:
 
 1. **Exposure & Tone**:
+
    - Auto-exposure adjustment
    - Highlight recovery
    - Shadow enhancement
    - Dynamic range optimization
 
 2. **Color & White Balance**:
+
    - Color temperature correction
    - Tint adjustment
    - Vibrance and saturation
    - Color balance
 
 3. **Detail Enhancement**:
+
    - Sharpening parameters
    - Noise reduction (luminance/chrominance)
    - Texture preservation
@@ -119,7 +140,8 @@ The AI analyzes your photos and generates RawTherapee PP3 profiles focusing on:
 ### Preview File Handling
 
 During processing, ART:
-1. Creates a preview JPEG (quality=90) for AI analysis
+
+1. Creates a preview JPEG (quality=80) for AI analysis
 2. By default, removes the preview after processing
 3. Can retain preview with `-k` flag for reference
 4. Names previews as `<input>_preview.jpg`
@@ -127,6 +149,7 @@ During processing, ART:
 ### AI Provider Support
 
 ART supports multiple AI providers:
+
 - OpenAI (default): GPT-4 Vision
 - OpenAI-compatible: OpenAI-compatible APIs (e.g. OpenRouter)
 - Anthropic: Claude 3 Series
@@ -156,6 +179,7 @@ export XAI_API_KEY=your_xai_key
 ```
 
 Configuration examples:
+
 ```bash
 # Use default OpenAI provider
 art input.dng
@@ -179,7 +203,7 @@ art input.dng -q 95
 art input.dng -v
 
 # Use base PP3 file
-art input.dng --base base.pp3
+art input.dng --base base.pp3  # Recommended for best results - builds upon existing profiles
 ```
 
 ## Development
@@ -194,6 +218,7 @@ pnpm test
 # Build the project
 pnpm build
 ```
+
 ## License
 
 [GPL-2.0](LICENSE) (matching RawTherapee's license)

@@ -308,7 +308,8 @@ export async function generatePP3FromDngWithBase({
       throw new Error("AI response was empty or in an unexpected format");
     }
 
-    if (verbose) console.log("Received response from AI provider");
+    if (verbose)
+      console.log("Received response from AI provider:", responseText);
 
     // parse search/replace blocks
     // 解析搜索/替换块
@@ -675,7 +676,8 @@ export async function generatePP3FromDng({
       throw new Error("AI response was empty or in an unexpected format");
     }
 
-    if (verbose) console.log("Received response from AI provider");
+    if (verbose)
+      console.log("Received response from AI provider:", responseText);
 
     // Parse XML to extract PP3 content
     const parser = new XMLParser(XML_PARSER_OPTIONS);
