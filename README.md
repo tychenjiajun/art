@@ -59,7 +59,7 @@ AI-PP3 provides two main modes of operation:
 ### Recommended Practices
 
 For optimal results:
-- 🏁 Always stai-pp3 with `--base` when processing similar photo sequences
+- 🏁 Always start with `--base` when processing similar photo sequences
 - 🔧 Use existing PP3 profiles as baseline for consistent adjustments
 - 🧩 Combine AI suggestions with your proven processing recipes
 - 🔄 Iteratively refine base files between processing sessions
