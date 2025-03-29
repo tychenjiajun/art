@@ -27,65 +27,19 @@ export async function convertDngToImage({
   tiffCompression?: "z" | "none";
   bitDepth?: 8 | 16;
 }): Promise<void> {
-  // Validate quality parameter
-  if (quality < 0 || quality > 100) {
-    throw new Error("Quality must be between 0 and 100");
-  }
-
-  // Validate subsampling parameter
-  if (subsampling < 1 || subsampling > 3) {
-    throw new Error("Subsampling must be between 1 and 3");
-  }
-
-  // Validate output directory exists and is writable
-  const outputDirectory = path.dirname(output);
+  validateQualityAndSubsampling(quality, subsampling);
+  await validateOutputDirectory(output);
+  const cliArguments = buildCliArguments({
+    output,
+    format,
+    quality,
+    subsampling,
+    tiffCompression,
+    bitDepth,
+    pp3Path: undefined,
+    input,
+  });
   try {
-    await fs.promises.access(outputDirectory, fs.constants.W_OK);
-  } catch (error: unknown) {
-    if (error instanceof Error && "code" in error) {
-      if (error.code === "ENOENT") {
-        throw new Error(`Output directory does not exist: ${outputDirectory}`);
-      } else if (error.code === "EACCES") {
-        throw new Error(
-          `Permission denied writing to output directory: ${outputDirectory}`,
-        );
-      }
-    }
-    throw new Error(`Error accessing output directory: ${outputDirectory}`);
-  }
-
-  try {
-    const cliArguments = [
-      ...(os.platform() === "win32" ? ["-w"] : []), // Windows-specific flag
-      "-Y", // Overwrite output
-      "-o",
-      output,
-    ];
-
-    switch (format) {
-      case "jpeg": {
-        cliArguments.push(
-          `-j${quality.toString()}`,
-          `-js${subsampling.toString()}`,
-        );
-
-        break;
-      }
-      case "tiff": {
-        cliArguments.push("-t");
-        if (tiffCompression === "z") cliArguments.push("z");
-
-        break;
-      }
-      case "png": {
-        cliArguments.push("-n");
-
-        break;
-      }
-      // No default
-    }
-
-    cliArguments.push(`-b${bitDepth.toString()}`, "-c", input);
     await execa("rawtherapee-cli", cliArguments);
   } catch (error) {
     throw new Error(
@@ -123,8 +77,37 @@ export async function convertDngToImageWithPP3({
   if (!pp3Path) {
     throw new Error("PP3 profile path is required");
   }
+  validateQualityAndSubsampling(quality, subsampling);
+  await validateOutputDirectory(output);
+  const cliArguments = buildCliArguments({
+    output,
+    format,
+    quality,
+    subsampling,
+    tiffCompression,
+    bitDepth,
+    pp3Path,
+    input,
+  });
+  try {
+    await execa("rawtherapee-cli", cliArguments);
+  } catch (error) {
+    throw new Error(
+      `Conversion failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
+}
 
-  // Validate output directory exists and is writable
+function validateQualityAndSubsampling(quality: number, subsampling: number) {
+  if (quality < 0 || quality > 100) {
+    throw new Error("Quality must be between 0 and 100");
+  }
+  if (subsampling < 1 || subsampling > 3) {
+    throw new Error("Subsampling must be between 1 and 3");
+  }
+}
+
+async function validateOutputDirectory(output: string) {
   const outputDirectory = path.dirname(output);
   try {
     await fs.promises.access(outputDirectory, fs.constants.W_OK);
@@ -140,44 +123,55 @@ export async function convertDngToImageWithPP3({
     }
     throw new Error(`Error accessing output directory: ${outputDirectory}`);
   }
+}
 
-  try {
-    // Always use maximum quality for PP3-based conversion
-    const cliArguments = [
-      ...(os.platform() === "win32" ? ["-w"] : []), // Windows-specific flag
-      "-Y", // Overwrite output
-      "-o",
-      output,
-    ];
-
-    switch (format) {
-      case "jpeg": {
-        cliArguments.push(
-          `-j${quality.toString()}`,
-          `-js${subsampling.toString()}`,
-        );
-
-        break;
-      }
-      case "tiff": {
-        cliArguments.push("-t");
-        if (tiffCompression === "z") cliArguments.push("z");
-
-        break;
-      }
-      case "png": {
-        cliArguments.push("-n");
-
-        break;
-      }
-      // No default
+function buildCliArguments({
+  output,
+  format,
+  quality,
+  subsampling,
+  tiffCompression,
+  bitDepth,
+  pp3Path,
+  input,
+}: {
+  output: string;
+  format: string;
+  quality: number;
+  subsampling: number;
+  tiffCompression: string | undefined;
+  bitDepth: number;
+  pp3Path?: string;
+  input: string;
+}) {
+  const cliArguments = [
+    ...(os.platform() === "win32" ? ["-w"] : []),
+    "-Y",
+    "-o",
+    output,
+  ];
+  switch (format) {
+    case "jpeg": {
+      cliArguments.push(
+        `-j${quality.toString()}`,
+        `-js${subsampling.toString()}`,
+      );
+      break;
     }
-
-    cliArguments.push(`-b${bitDepth.toString()}`, "-p", pp3Path, "-c", input);
-    await execa("rawtherapee-cli", cliArguments);
-  } catch (error) {
-    throw new Error(
-      `Conversion failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+    case "tiff": {
+      cliArguments.push("-t");
+      if (tiffCompression === "z") cliArguments.push("z");
+      break;
+    }
+    case "png": {
+      cliArguments.push("-n");
+      break;
+    }
   }
+  if (pp3Path) {
+    cliArguments.push(`-b${bitDepth.toString()}`, "-p", pp3Path, "-c", input);
+  } else {
+    cliArguments.push(`-b${bitDepth.toString()}`, "-c", input);
+  }
+  return cliArguments;
 }
