@@ -3,8 +3,6 @@ import os from "node:os";
 import path from "node:path";
 import fs from "node:fs";
 
-const SUPPORTED_RAW_EXTENSIONS = [".dng", ".nef", ".cr2", ".arw"];
-
 /**
  * Convert a DNG file to JPEG with specified quality and subsampling settings.
  * @param input Path to input DNG file
@@ -23,14 +21,6 @@ export async function convertDngToJpeg({
   quality?: number;
   subsampling?: number;
 }): Promise<void> {
-  // Validate input file extension
-  const extension = input.toLowerCase().slice(input.lastIndexOf("."));
-  if (!SUPPORTED_RAW_EXTENSIONS.includes(extension)) {
-    throw new Error(
-      `Unsupported file type: ${extension}. Supported types: ${SUPPORTED_RAW_EXTENSIONS.join(", ")}`,
-    );
-  }
-
   // Validate quality parameter
   if (quality < 0 || quality > 100) {
     throw new Error("Quality must be between 0 and 100");
@@ -99,14 +89,6 @@ export async function convertDngToJpegWithPP3({
 }): Promise<void> {
   if (!pp3Path) {
     throw new Error("PP3 profile path is required");
-  }
-
-  // Validate input file extension
-  const extension = input.toLowerCase().slice(input.lastIndexOf("."));
-  if (!SUPPORTED_RAW_EXTENSIONS.includes(extension)) {
-    throw new Error(
-      `Unsupported file type: ${extension}. Supported types: ${SUPPORTED_RAW_EXTENSIONS.join(", ")}`,
-    );
   }
 
   // Validate output directory exists and is writable

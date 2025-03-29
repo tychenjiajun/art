@@ -3,11 +3,8 @@
 import { Command } from "commander";
 import { convertDngToJpegWithPP3 } from "./raw-therapee-wrap.js";
 import { generatePP3FromDng, generatePP3FromDngWithBase } from "./agent.js";
-import path from "node:path";
 import fs from "node:fs";
 import packageJson from "../package.json" with { type: "json" };
-
-const SUPPORTED_EXTENSIONS = [".dng", ".nef", ".cr2", ".arw"];
 
 interface ProcessImageOptions {
   output?: string;
@@ -28,13 +25,6 @@ export async function processImage(
 ) {
   if (!inputPath) {
     throw new Error("Input path cannot be empty");
-  }
-
-  const extension = path.extname(inputPath).toLowerCase();
-  if (!SUPPORTED_EXTENSIONS.includes(extension)) {
-    throw new Error(
-      `Unsupported file type: ${extension}. Supported types: ${SUPPORTED_EXTENSIONS.join(", ")}`,
-    );
   }
 
   // Validate input file exists and is readable

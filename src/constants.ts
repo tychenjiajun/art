@@ -14,5 +14,3 @@ export const PREVIEW_SETTINGS: PreviewSettings = {
 export const OUTPUT_SETTINGS: OutputSettings = {
   quality: 100,
 };
-
-export const SUPPORTED_RAW_EXTENSIONS = [".dng", ".nef", ".cr2", ".arw"];
