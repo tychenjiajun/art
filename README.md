@@ -14,14 +14,26 @@ AI-PP3 is an advanced command-line tool that combines multimodal AI analysis wit
 - [Basic Usage](#basic-usage)
 - [Advanced Features](#advanced-features)
 - [Roadmap](#roadmap)
+- [FAQ](#faq)
 - [License](#license)
 
-## Compatibility <a name="compatibility"></a>
+## Key Features 
+- 🖼️ AI-driven analysis of RAW files (DNG/NEF/CR2/ARW)
+- ⚡ Batch PP3 creation with consistent processing parameters
+- 📝 Customizable development settings through natural language prompts
+- 🔀 Multi-model support (OpenAI, Anthropic, Google, Local)
+- 🎚️ Fine-grained control over PP3 sections (Exposure, Color, Detail)
+- 🔍 Interactive preview generation with quality controls
+
+## Compatibility 
 ### Supported Formats
 - **RAW Files**: All RawTherapee-supported formats including:
   - Common: CR2/CR3, NEF, ARW, RAF, DNG
   - Specialized: IIQ, PEF, RW2, ORF
-- **Output Formats**: JPEG, TIFF, PNG (8/16-bit)
+- **Output Formats**:
+  - JPEG (8-bit)
+  - TIFF (8/16-bit with ZLIB/NONE compression)
+  - PNG (8/16-bit)
 
 ### System Requirements
 - Node.js ≥18
@@ -38,7 +50,7 @@ npm install -g ai-pp3
 ai-pp3 --version
 ```
 
-## AI Configuration
+## AI Configuration 
 ### Provider Setup
 ```bash
 # Environment variables (.env file)
@@ -49,11 +61,80 @@ GOOGLE_GENERATIVE_AI_API_KEY=your_key # Gemini
 
 ### Model Selection
 ```bash
+# Cloud models
 ai-pp3 input.dng --provider anthropic --model claude-3-opus-20240229
+
+# Local models
+ai-pp3 input.dng --provider openai-compatible --model llama3:8b-instruct-q5_K_M
 ```
 
-## Roadmap
+## Basic Usage 
+```bash
+# Basic processing with defaults
+ai-pp3 input.dng -o output.jpg
+
+# PP3-only mode with custom prompt
+ai-pp3 input.dng --pp3-only -p "Unleash the full potential of RAW image pp3 settings with a dramatic flair. Elevate your creative precision by providing:
+
+1. ANALYSIS: A profound exploration into the image's essence, identifying its strengths and areas for transformation.
+2. PLAN: Set ambitious goals for adjustments and articulate a vivid creative vision that transcends ordinary imagery.
+3. CHANGES: Deliver precise SEARCH/REPLACE blocks to breathe life into the envisioned transformation.
+
+RULES:
+- Respect the original structure & headers as the foundation upon which to build your masterpiece.
+- Proceed thoughtfully, modifying only those values necessary to achieve the desired dramatic effect.
+- Maintain the document's integrity by never adding or removing sections.
+
+CHANGES FORMAT:
+\`\`\`
+<<<<<<< SEARCH
+[Exposure]
+Auto=false
+Clip=0.02
+Compensation=0
+Brightness=0
+=======
+[Exposure]
+Auto=false
+Clip=0.02
+Compensation=-0.5
+Brightness=25
+>>>>>>> REPLACE
+\`\`\`
+
+Prepare to embark on this transformative journey as the pp3 content to be optimized follows below:
+"
+
+# Multi-section processing
+ai-pp3 input.dng --sections Exposure,ColorToning
+
+# Base profile refinement
+ai-pp3 input.dng --base existing.pp3 --preview-quality 85
+```
+
+## Advanced Features 
+### Batch Processing
+```bash
+# Parallel processing (GNU Parallel)
+ls *.DNG | parallel -j8 ai-pp3 {} -o {.}.jpg
+
+# TIFF output with compression
+find . -name '*.NEF' -exec ai-pp3 {} --tiff --compression z \;
+```
+
+### Custom Workflows
+```bash
+# Multi-model comparison
+ai-pp3 input.dng \
+  --provider openai --model gpt-4-vision-preview \
+  --base neutral.pp3 --keep-preview
+```
+
+## Roadmap 
 - [ ] ART (.arp) profile compatibility
+
+## FAQ
+For detailed questions and answers, see our [FAQ documentation](faq.md).
 
 ## License
 

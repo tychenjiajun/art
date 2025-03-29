@@ -1,230 +1,150 @@
-# AI-PP3 - AI驱动的RawTherapee配置生成器
+# AI-PP3 - 基于AI增强的RawTherapee配置文件生成器
 
 https://github.com/user-attachments/assets/95bf9e8d-0c97-442d-8068-a5d27e094f18
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/ai-pp3.svg)](https://www.npmjs.com/package/ai-pp3)
 
-AI-PP3（AI RawTherapee）是一个命令行工具，它借助人工智能分析RAW照片，并为[RawTherapee](https://www.rawtherapee.com/)（一款强大的开源RAW图像处理软件）生成优化的处理配置文件。通过将计算机视觉AI与RawTherapee的先进处理能力相结合，AI-PP3帮助您自动获得专业级的处理效果。
+AI-PP3 是一款结合多模态AI分析与RawTherapee处理引擎的命令行工具，专注于为RAW摄影优化生成PP3配置文件。支持自动化工作流和创意探索。
 
-## 特性
+## 目录
 
-- 🤖 由人工智能驱动的照片分析和PP3配置文件生成
-- 📸 支持多种RAW格式（DNG、NEF、CR2、ARW）
-- 🎨 与RawTherapee强大的处理引擎集成
-- 🖼️ 自动生成用于AI分析的预览图
-- ⚡️ 灵活的AI提供商支持（OpenAI、Anthropic、Google等）
-- 🛠️ 简单、专注的命令行界面
+- [主要特性](#主要特性)
+- [兼容性](#兼容性)
+- [安装指南](#安装指南)
+- [AI配置](#ai配置)
+- [基础用法](#基础用法)
+- [高级功能](#高级功能)
+- [发展路线](#发展路线)
+- [许可证](#许可证)
 
-## 先决条件
+## 主要特性
 
-- Node.js >= 18
-- [RawTherapee](https://www.rawtherapee.com/)（>= 5.8）已安装并可在PATH中访问
-  - Windows：从[官方网站](https://www.rawtherapee.com/downloads/)安装
-  - macOS：`brew install rawtherapee`
-  - Linux：`sudo apt install rawtherapee` 或等效命令
-- 所选AI提供商的API密钥
+- 🖼️ RAW文件AI智能分析（支持DNG/NEF/CR2/ARW等格式）
+- ⚡ 批量生成PP3配置文件
+- 📝 自定义自然语言提示词控制处理参数
+- 🔀 多模型支持（OpenAI/Anthropic/Google/本地模型）
+- 🎚️ 精细控制PP3模块（曝光/色彩/细节等）
+- 🔍 带质量控制的交互式预览生成
 
-## 安装
+## 兼容性
+
+### 支持格式
+
+- **RAW格式**：支持所有RawTherapee兼容格式，包括：
+  - 常见格式：CR2/CR3、NEF、ARW、RAF、DNG
+  - 其他格式：IIQ、PEF、RW2、ORF
+- **输出格式**：
+  - JPEG（8位）
+  - TIFF（8/16位，支持ZLIB/NONE压缩）
+  - PNG（8/16位）
+
+### 系统要求
+
+- Node.js ≥18版
+- RawTherapee ≥5.8版（需启用CLI）
+- 云服务API密钥或本地GPU（用于自托管模型）
+
+## 安装指南
 
 ```bash
 # 全局安装
 npm install -g ai-pp3
+
+# 验证安装版本
+ai-pp3 --version
 ```
 
-## 使用方法
+## AI配置
 
-AI-PP3提供两种主要操作模式：
-
-1. 全处理模式（默认）：
-
-   ```bash
-   # 生成PP3并处理图像
-   ai-pp3 input.dng
-
-   # 自定义输出路径
-   ai-pp3 input.dng -o output.jpg    # 创建output.pp3和output.jpg
-   ai-pp3 input.dng -o output.pp3    # 创建output.pp3和output.jpg
-   ```
-
-2. 仅PP3模式（用于RawTherapee GUI）：
-
-   ```bash
-   # 仅生成PP3配置文件
-   ai-pp3 input.dng --pp3-only
-
-   # 自定义PP3输出路径
-   ai-pp3 input.dng --pp3-only -o custom.pp3
-   ```
-
-### 推荐实践
-
-为获得最佳处理效果：
-- 🏁 处理相似照片序列时始终使用`--base`参数
-- 🔧 使用现有PP3配置文件作为调整基准
-- 🧩 将AI建议与您已验证的处理方案结合使用
-- 🔄 在处理会话之间迭代优化基础文件
-
-### 命令选项
-
-| 选项 | 描述 | 默认值 |
-|--------|-------------|---------|
-| `-o, --output <path>` | 输出文件路径 | `input.pp3`/`input_processed.jpg` |
-| `--pp3-only` | 仅生成PP3，不进行处理 | `false` |
-| `-p, --prompt <text>` | 自定义AI分析提示文本 | 内置提示 |
-| `--provider <name>` | AI提供商 (`openai`, `anthropic`, `google`, `xai`) | `openai` |
-| `--model <name>` | 模型版本 | `gpt-4-vision-preview` |
-| `-v, --verbose` | 启用详细日志记录 | `false` |
-| `-k, --keep-preview` | 保留预览JPEG | `false` |
-| `-q, --quality <0-100>` | 输出图像质量 | `100` |
-| `--sections <names>` | 要处理的PP3部分 | 所有部分 |
-| `--base <path>` | 用于增量改进的基础PP3配置文件 | 无 |
-
-### 与RawTherapee集成
-
-AI-PP3以两种方式与RawTherapee无缝协作：
-
-1. **自动处理**：默认情况下，AI-PP3使用RawTherapee的CLI（`rawtherapee-cli`）来：
-
-   - 生成用于AI分析的预览JPEG（质量=80，子采样=3）
-   - 使用AI生成的PP3配置文件处理最终图像（质量=100）
-   - 处理RawTherapee支持的各种RAW格式
-
-2. **手动处理**：使用`--pp3-only`模式：
-   - 生成PP3配置文件而不进行处理
-   - 在RawTherapee的GUI中使用配置文件进行微调
-   - 保存配置文件以进行批量处理
-
-### AI生成的PP3配置文件
-
-AI遵循结构化工作流程创建优化参数：
-
-**分析框架**
-1. **思考阶段**：
-  - 评估直方图分布和剪切点
-  - 分析色彩关系和纹理复杂度
-  - 检测光照条件和光学特性
-
-2. **计划阶段**：
-  - 确定曝光补偿需求（±2.0 EV范围）
-  - 设计高光/阴影恢复策略
-  - 制定色彩调整路线（白平衡±1500K色温范围）
-  - 开发细节增强方案
-
-3. **执行阶段**：
-  - 生成安全值范围内的PP3参数：
-    ```
-    [Exposure]
-    Compensation=±2.0
-    
-    [White Balance]
-    Temperature=6500±1500
-    Green=0.8-1.2
-    
-    [Sharpening]
-    Amount=50-400
-    Radius=0.5-1.5
-    ```
-
-**基础配置文件工作流** (`--base` 选项)：
-1. **思考阶段**：
-  - 评估直方图分布和剪切点
-  - 分析色彩关系和纹理复杂度
-  - 检测光照条件和光学特性
-
-2. **计划阶段**：
-  - 确定曝光补偿需求（±2.0 EV范围）
-  - 设计高光/阴影恢复策略
-  - 制定色彩调整路线（白平衡±1500K色温范围）
-  - 开发细节增强方案
-
-3. **执行阶段**：
-  - 生成安全值范围内的PP3参数
-  - 对现有PP3文件进行差异分析
-  - 保留手动调整参数
-  - 通过参数映射和版本感知继承进行优化
-
-### 预览文件处理
-
-在处理过程中，AI-PP3会：
-
-1. 创建用于AI分析的预览JPEG（质量=80）
-2. 默认情况下，处理后删除预览
-3. 可以使用`-k`标志保留预览以供参考
-4. 将预览命名为`<input>_preview.jpg`
-
-### AI提供商支持
-
-AI-PP3支持多个AI提供商：
-
-- OpenAI（默认）：GPT - 4 Vision
-- 兼容OpenAI的API：兼容OpenAI的API（例如OpenRouter）
-- Anthropic：Claude 3系列
-- Google：Gemini Pro Vision
-- xAI：Grok语言模型
-
-#### 设置API密钥
-
-AI-PP3使用环境变量进行API密钥配置。您可以在shell中设置它们，也可以在工作目录中创建一个`.env`文件：
+### 服务提供商设置
 
 ```bash
-# OpenAI
-export OPENAI_API_KEY=your_openai_key
-
-# 兼容OpenAI的API（例如OpenRouter）
-export OPENAI_API_KEY=your_openrouter_key
-export OPENAI_BASE_URL=https://openrouter.ai/api/v1
-
-# Anthropic
-export ANTHROPIC_API_KEY=your_anthropic_key
-
-# Google
-export GOOGLE_GENERATIVE_AI_API_KEY=your_google_key
-
-# xAI
-export XAI_API_KEY=your_xai_key
+# 环境变量配置（在.env文件中）
+OPENAI_API_KEY=your_key               # 默认服务提供商
+ANTHROPIC_API_KEY=your_key            # Claude模型
+GOOGLE_GENERATIVE_AI_API_KEY=your_key # Gemini模型
 ```
 
-配置示例：
+### 模型选择
 
 ```bash
-# 使用默认的OpenAI提供商
-ai-pp3 input.dng
+# 使用云端模型
+ai-pp3 input.dng --provider anthropic --model claude-3-opus-20240229
 
-# 使用Anthropic Claude 3 Sonnet
-ai-pp3 input.dng --provider anthropic --model claude-3-sonnet-20240229
-
-# 使用Google Gemini Pro Vision
-ai-pp3 input.dng --provider google --model gemini-pro-vision
-
-# 使用xAI Grok
-ai-pp3 input.dng --provider xai --model grok-1
-
-# 使用自定义提示
-ai-pp3 input.dng -p "分析这张照片并创建自然的胶片风格外观"
-
-# 设置输出质量
-ai-pp3 input.dng -q 95
-
-# 启用详细日志记录
-ai-pp3 input.dng -v
-
-# 使用基础PP3文件
-ai-pp3 input.dng --base base.pp3  # 推荐用于最佳效果 - 基于现有配置文件改进
+# 使用本地模型
+ai-pp3 input.dng --provider openai-compatible --model llama3:8b-instruct-q5_K_M
 ```
 
-## 开发
+## 基础用法
 
 ```bash
-# 安装依赖项
-pnpm install
+# 默认参数处理
+ai-pp3 input.dng -o output.jpg
 
-# 运行测试
-pnpm test
+# 仅生成PP3配置文件（自定义提示词）
+ai-pp3 input.dng --pp3-only -p "通过深度分析释放RAW图像潜力，提供：
+1. **分析**：深入解析图像特质，识别优化方向
+2. **方案**：制定精准调整策略和视觉提升计划
+3. **修改**：通过SEARCH/REPLACE块实现参数优化
 
-# 构建项目
-pnpm build
+**规则**：
+- 保持原始配置框架
+- 仅修改必要参数
+- 不增删配置模块
+
+**修改格式**：
+\`\`\`
+<<<<<<< SEARCH
+[Exposure]
+Auto=false
+Clip=0.02
+Compensation=0
+Brightness=0
+=======
+[Exposure]
+Auto=false
+Clip=0.02
+Compensation=-0.5
+Brightness=25
+>>>>>>> REPLACE
+\`\`\`"
+
+# 多模块处理
+ai-pp3 input.dng --sections Exposure,ColorToning
+
+# 基于现有配置优化
+ai-pp3 input.dng --base existing.pp3 --preview-quality 85
 ```
+
+## 高级功能
+
+### 批量处理
+
+```bash
+# 并行处理（需GNU Parallel）
+ls *.DNG | parallel -j8 ai-pp3 {} -o {.}.jpg
+
+# TIFF压缩输出
+find . -name '*.NEF' -exec ai-pp3 {} --tiff --compression z \;
+```
+
+### 自定义工作流
+
+```bash
+# 多模型对比
+ai-pp3 input.dng \
+  --provider openai --model gpt-4-vision-preview \
+  --base neutral.pp3 --keep-preview
+```
+
+## 发展路线
+
+- [ ] 支持ART(.arp)配置文件
+
+## 常见问题
+
+点击[FAQ文档](faq.zh-CN.md)查看常见问题解答。
 
 ## 许可证
 
-[GPL - 2.0](LICENSE)（与RawTherapee的许可证匹配）
+[GPL-2.0](LICENSE)
