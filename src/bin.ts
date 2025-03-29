@@ -103,9 +103,9 @@ export async function processImage(
 const program = new Command();
 
 program
-  .name("art")
+  .name("ai-pp3")
   .description(
-    "AI-driven RAW photo processor supporting DNG/NEF/CR2/ARW formats\nUses AI vision models to generate RawTherapee PP3 processing profiles\nProvides PP3 generation and batch processing options\nMulti-language documentation available in README",
+    "AI-Powered PP3 Profile Generator for RawTherapee\nSpecializes in bulk generation and customization of PP3 development profiles\nKey features:\n- AI-driven analysis of RAW files (DNG/NEF/CR2/ARW)\n- Batch PP3 creation with consistent processing parameters\n- Customizable development settings through natural language prompts\n- Seamless integration with existing PP3 workflows\n- Multi-model support for different processing styles\n- Interactive preview generation with quality controls\nDocumentation available in README for advanced customization",
   )
   .version(packageJson.version)
   .argument("<input>", "Input RAW file path")
