@@ -12,6 +12,104 @@ import { BASE_PROMPT, DEFAULT_PROMPT } from "./prompts.js";
 import { PREVIEW_SETTINGS, XML_PARSER_OPTIONS } from "./constants.js";
 import { isPlainObject } from "@sindresorhus/is";
 
+async function validateFileAccess(filePath: string, mode: "read" | "write") {
+  try {
+    await fs.promises.access(
+      filePath,
+      mode === "read" ? fs.constants.R_OK : fs.constants.W_OK,
+    );
+  } catch (error: unknown) {
+    if (error instanceof Error && "code" in error) {
+      if (error.code === "ENOENT") {
+        throw new Error(
+          `${mode === "read" ? "File" : "Directory"} not found: ${filePath}`,
+        );
+      } else if (error.code === "EACCES") {
+        throw new Error(
+          `Permission denied ${mode === "read" ? "reading" : "writing"} ${filePath}`,
+        );
+      }
+    }
+    throw new Error(
+      `Error accessing ${filePath}: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
+}
+
+async function createPreviewImage({
+  inputPath,
+  previewPath,
+  basePP3Path,
+  quality,
+  verbose,
+}: {
+  inputPath: string;
+  previewPath: string;
+  basePP3Path?: string;
+  quality: number;
+  verbose?: boolean;
+}) {
+  try {
+    await (basePP3Path
+      ? convertDngToImageWithPP3({
+          input: inputPath,
+          output: previewPath,
+          pp3Path: basePP3Path,
+          format: "jpeg",
+          quality,
+        })
+      : convertDngToImage({
+          input: inputPath,
+          output: previewPath,
+          format: "jpeg",
+          quality,
+        }));
+    if (verbose) console.log(`Preview file created at ${previewPath}`);
+    return true;
+  } catch (error: unknown) {
+    if (error instanceof Error) throw error;
+    throw new Error("Unknown error creating preview image");
+  }
+}
+
+function handleFileError(
+  error: unknown,
+  filePath: string,
+  operation: "read" | "write",
+) {
+  if (error instanceof Error && "code" in error) {
+    if (error.code === "ENOENT") {
+      throw new Error(`File not found during ${operation}: ${filePath}`);
+    } else if (error.code === "EACCES") {
+      throw new Error(`Permission denied ${operation}ing file: ${filePath}`);
+    }
+  }
+  throw new Error(
+    `Error ${operation}ing file ${filePath}: ${error instanceof Error ? error.message : "Unknown error"}`,
+  );
+}
+
+function handleProviderSetup(providerName: string, visionModel: string) {
+  try {
+    return provider(providerName)(visionModel);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.message.includes("not supported")) {
+        throw new Error(
+          `Provider ${providerName} is not supported. Available providers: openai, openai-compatible, anthropic, google, xai`,
+        );
+      } else if (error.message.includes("model")) {
+        throw new Error(
+          `Model ${visionModel} is not supported by provider ${providerName}. Please check available models.`,
+        );
+      }
+    }
+    throw new Error(
+      `Invalid AI provider or model: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
+}
+
 export async function generatePP3FromDngWithBase({
   inputPath,
   basePP3Path,
@@ -64,107 +162,48 @@ export async function generatePP3FromDngWithBase({
 
   try {
     // Verify input file exists and is readable
-    try {
-      await fs.promises.access(inputPath, fs.constants.R_OK);
-    } catch (error: unknown) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "ENOENT") {
-          throw new Error(`Input file not found: ${inputPath}`);
-        } else if (error.code === "EACCES") {
-          throw new Error(`Permission denied reading input file: ${inputPath}`);
-        }
-      }
-      throw new Error(
-        `Error accessing input file: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
+    await validateFileAccess(inputPath, "read");
 
     // Check if preview path is writable
-    try {
-      const previewDirectory = dirname(previewPath);
-      await fs.promises.access(previewDirectory, fs.constants.W_OK);
-    } catch (error: unknown) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "ENOENT") {
-          throw new Error(
-            `Preview directory does not exist: ${dirname(previewPath)}`,
-          );
-        } else if (error.code === "EACCES") {
-          throw new Error(
-            `Permission denied writing to preview directory: ${dirname(previewPath)}`,
-          );
-        }
-      }
-      throw new Error(
-        `Error accessing preview directory: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
+    await validateFileAccess(dirname(previewPath), "write");
 
     // Create preview with specific quality settings
     if (verbose)
       console.log(
         `Generating preview with quality=${String(PREVIEW_SETTINGS.quality)}`,
       );
-    try {
-      await convertDngToImageWithPP3({
-        input: inputPath,
-        output: previewPath,
-        pp3Path: basePP3Path,
-        format: "jpeg",
-        quality: previewQuality ?? PREVIEW_SETTINGS.quality,
-      });
-      previewCreated = true;
-      if (verbose) console.log(`Preview file created at ${previewPath}`);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        // RawTherapee errors are already properly formatted by raw-therapee-wrap
-        throw error;
-      }
-      throw error;
-    }
+    previewCreated = await createPreviewImage({
+      inputPath,
+      previewPath,
+      basePP3Path,
+      quality: previewQuality ?? PREVIEW_SETTINGS.quality,
+      verbose,
+    });
 
     // Read preview file
-    let imageData: Buffer;
+    let imageData: Buffer | undefined = undefined;
     try {
       imageData = await fs.promises.readFile(previewPath);
       if (verbose) console.log("Preview file read successfully");
     } catch (error: unknown) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "ENOENT") {
-          throw new Error(`Preview file not found: ${previewPath}`);
-        } else if (error.code === "EACCES") {
-          throw new Error(
-            `Permission denied reading preview file: ${previewPath}`,
-          );
-        }
-      }
-      throw new Error(
-        `Error reading preview file: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      handleFileError(error, previewPath, "read");
+    }
+
+    if (imageData == null) {
+      throw new Error("Failed to read preview image data");
     }
 
     // Read base PP3
-    let basePP3Content: string;
+    let basePP3Content: string | undefined = undefined;
     try {
       basePP3Content = await fs.promises.readFile(basePP3Path, "utf8");
       if (verbose)
         console.log(`Base PP3 file read successfully from ${basePP3Path}`);
     } catch (error: unknown) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "ENOENT") {
-          throw new Error(`Base PP3 file not found: ${basePP3Path}`);
-        } else if (error.code === "EACCES") {
-          throw new Error(
-            `Permission denied reading base PP3 file: ${basePP3Path}`,
-          );
-        }
-      }
-      throw new Error(
-        `Error reading base PP3 file: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      handleFileError(error, basePP3Path, "read");
     }
 
-    const lines = basePP3Content.split("\n");
+    const lines = basePP3Content?.split("\n") ?? [];
 
     const includedSections: string[] = [];
     const excludedSections: string[] = [];
@@ -203,26 +242,7 @@ export async function generatePP3FromDngWithBase({
       }
     }
 
-    // Get provider instance
-    let aiProvider;
-    try {
-      aiProvider = provider(providerName)(visionModel);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (error.message.includes("not supported")) {
-          throw new Error(
-            `Provider ${providerName} is not supported. Available providers: openai, openai-compatible, anthropic, google, xai`,
-          );
-        } else if (error.message.includes("model")) {
-          throw new Error(
-            `Model ${visionModel} is not supported by provider ${providerName}. Please check available models.`,
-          );
-        }
-      }
-      throw new Error(
-        `Invalid AI provider or model: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
+    const aiProvider = handleProviderSetup(providerName, visionModel);
 
     const toBeEdited = includedSections.join("\n");
     const extractedText = `${prompt}\n\n${toBeEdited}`;
@@ -490,104 +510,37 @@ export async function generatePP3FromDng({
 
   try {
     // Verify input file exists and is readable
-    try {
-      await fs.promises.access(inputPath, fs.constants.R_OK);
-    } catch (error: unknown) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "ENOENT") {
-          throw new Error(`Input file not found: ${inputPath}`);
-        } else if (error.code === "EACCES") {
-          throw new Error(`Permission denied reading input file: ${inputPath}`);
-        }
-      }
-      throw new Error(
-        `Error accessing input file: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
+    await validateFileAccess(inputPath, "read");
 
     // Check if preview path is writable
-    try {
-      const previewDirectory = dirname(previewPath);
-      await fs.promises.access(previewDirectory, fs.constants.W_OK);
-    } catch (error: unknown) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "ENOENT") {
-          throw new Error(
-            `Preview directory does not exist: ${dirname(previewPath)}`,
-          );
-        } else if (error.code === "EACCES") {
-          throw new Error(
-            `Permission denied writing to preview directory: ${dirname(previewPath)}`,
-          );
-        }
-      }
-      throw new Error(
-        `Error accessing preview directory: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
+    await validateFileAccess(dirname(previewPath), "write");
 
     // Create preview with specific quality settings
     if (verbose)
       console.log(
         `Generating preview with quality=${String(PREVIEW_SETTINGS.quality)}`,
       );
-    try {
-      await convertDngToImage({
-        input: inputPath,
-        output: previewPath,
-        format: "jpeg",
-        quality: previewQuality ?? PREVIEW_SETTINGS.quality,
-      });
-      previewCreated = true;
-      if (verbose) console.log(`Preview file created at ${previewPath}`);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        // RawTherapee errors are already properly formatted by raw-therapee-wrap
-        throw error;
-      }
-      throw error;
-    }
+    previewCreated = await createPreviewImage({
+      inputPath,
+      previewPath,
+      quality: previewQuality ?? PREVIEW_SETTINGS.quality,
+      verbose,
+    });
 
     // Read preview file
-    let imageData: Buffer;
+    let imageData: Buffer | undefined;
     try {
       imageData = await fs.promises.readFile(previewPath);
       if (verbose) console.log("Preview file read successfully");
     } catch (error: unknown) {
-      if (error instanceof Error && "code" in error) {
-        if (error.code === "ENOENT") {
-          throw new Error(`Preview file not found: ${previewPath}`);
-        } else if (error.code === "EACCES") {
-          throw new Error(
-            `Permission denied reading preview file: ${previewPath}`,
-          );
-        }
-      }
-      throw new Error(
-        `Error reading preview file: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      handleFileError(error, previewPath, "read");
     }
 
-    // Get provider instance
-    let aiProvider;
-    try {
-      aiProvider = provider(providerName)(visionModel);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        if (error.message.includes("not supported")) {
-          throw new Error(
-            `Provider ${providerName} is not supported. Available providers: openai, openai-compatible, anthropic, google, xai`,
-          );
-        } else if (error.message.includes("model")) {
-          throw new Error(
-            `Model ${visionModel} is not supported by provider ${providerName}. Please check available models.`,
-          );
-        }
-      }
-      throw new Error(
-        `Invalid AI provider or model: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+    if (imageData == null) {
+      throw new Error("Failed to read preview image data");
     }
+
+    const aiProvider = handleProviderSetup(providerName, visionModel);
 
     // Generate PP3 using AI
     if (verbose) console.log("Sending request to AI provider...");
