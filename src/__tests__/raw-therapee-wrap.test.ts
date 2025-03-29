@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { execa } from "execa";
 import {
-  convertDngToJpeg,
-  convertDngToJpegWithPP3,
+  convertDngToImage,
+  convertDngToImageWithPP3,
 } from "../raw-therapee-wrap.js";
 
 vi.mock("execa", () => ({
@@ -18,7 +18,7 @@ describe("RawTherapeeCLI", () => {
   });
 
   it("builds Windows silent mode parameters", async () => {
-    await convertDngToJpeg({
+    await convertDngToImage({
       input: "input.dng",
       output: "out.jpg",
       quality: 85,
@@ -37,7 +37,7 @@ describe("RawTherapeeCLI", () => {
   });
 
   it("uses quality parameter for basic DNG to JPEG conversion", async () => {
-    await convertDngToJpeg({
+    await convertDngToImage({
       input: "input.dng",
       output: "out.jpg",
       quality: 85,
@@ -56,7 +56,7 @@ describe("RawTherapeeCLI", () => {
   });
 
   it("enforces maximum quality for PP3-based conversion", async () => {
-    await convertDngToJpegWithPP3({
+    await convertDngToImageWithPP3({
       input: "input.dng",
       output: "high.jpg",
       pp3Path: "profile.pp3",
@@ -80,7 +80,7 @@ describe("RawTherapeeCLI", () => {
     mockExeca.mockRejectedValue(mockError);
 
     await expect(
-      convertDngToJpeg({
+      convertDngToImage({
         input: "input.dng",
         output: "output.jpg",
         quality: 90,
@@ -91,7 +91,7 @@ describe("RawTherapeeCLI", () => {
 
   it("throws error when PP3 profile is missing", async () => {
     await expect(
-      convertDngToJpegWithPP3({
+      convertDngToImageWithPP3({
         input: "input.dng",
         output: "output.jpg",
         pp3Path: "",
@@ -101,7 +101,7 @@ describe("RawTherapeeCLI", () => {
 
   it("validates supported file extensions", async () => {
     await expect(
-      convertDngToJpeg({
+      convertDngToImage({
         input: "input.txt",
         output: "output.jpg",
         quality: 90,
@@ -112,7 +112,7 @@ describe("RawTherapeeCLI", () => {
 
   it("handles invalid quality values", async () => {
     await expect(
-      convertDngToJpeg({
+      convertDngToImage({
         input: "input.dng",
         output: "output.jpg",
         quality: 101,
@@ -120,7 +120,7 @@ describe("RawTherapeeCLI", () => {
       }),
     ).rejects.toThrow("Quality must be between 0 and 100");
     await expect(
-      convertDngToJpeg({
+      convertDngToImage({
         input: "input.dng",
         output: "output.jpg",
         quality: -1,
@@ -131,7 +131,7 @@ describe("RawTherapeeCLI", () => {
 
   it("handles invalid subsampling values", async () => {
     await expect(
-      convertDngToJpeg({
+      convertDngToImage({
         input: "input.dng",
         output: "output.jpg",
         quality: 90,
@@ -139,7 +139,7 @@ describe("RawTherapeeCLI", () => {
       }),
     ).rejects.toThrow("Subsampling must be between 1 and 3");
     await expect(
-      convertDngToJpeg({
+      convertDngToImage({
         input: "input.dng",
         output: "output.jpg",
         quality: 90,

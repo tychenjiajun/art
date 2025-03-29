@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-deprecated */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { generatePP3FromDng, generatePP3FromDngWithBase } from "../agent.js";
-import { convertDngToJpeg } from "../raw-therapee-wrap.js";
+import { convertDngToImage } from "../raw-therapee-wrap.js";
 import { generateText } from "ai";
 import fs from "node:fs";
 
@@ -67,7 +67,7 @@ describe("Agent", () => {
     // Default successful mocks
     // 确保所有vi.mocked(...).mockResolvedValue()调用正常
     // 修改为正确的调用方式，移除多余的问题代码行
-    vi.mocked(convertDngToJpeg as any).mockResolvedValue();
+    vi.mocked(convertDngToImage as any).mockResolvedValue();
     vi.mocked(generateText).mockResolvedValue(DEFAULT_MOCK_RESULT);
     vi.mocked(fs.promises.access).mockResolvedValue();
     vi.mocked(fs.promises.readFile).mockResolvedValue(mockImageData);
@@ -87,10 +87,11 @@ describe("Agent", () => {
       await generatePP3FromDng({
         inputPath,
       });
-      expect(convertDngToJpeg).toHaveBeenCalledWith(
+      expect(convertDngToImage).toHaveBeenCalledWith(
         expect.objectContaining({
           input: inputPath,
           output: mockPreviewPath,
+          format: "jpeg",
           quality: expect.any(Number),
         }),
       );
@@ -246,10 +247,11 @@ describe("Agent", () => {
       await generatePP3FromDng({
         inputPath: "/path/to/input.dng",
       });
-      expect(convertDngToJpeg).toHaveBeenCalledWith(
+      expect(convertDngToImage).toHaveBeenCalledWith(
         expect.objectContaining({
           input: "/path/to/input.dng",
           output: mockPreviewPath,
+          format: "jpeg",
           quality: expect.any(Number),
         }),
       );

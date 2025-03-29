@@ -2,18 +2,14 @@ import { XMLParser } from "fast-xml-parser";
 // eslint-disable-next-line unicorn/import-style
 import { basename, dirname, join } from "node:path";
 import {
-  convertDngToJpeg,
-  convertDngToJpegWithPP3,
+  convertDngToImage,
+  convertDngToImageWithPP3,
 } from "./raw-therapee-wrap.js";
 import { generateText } from "ai";
 import { provider } from "./provider.js";
 import fs from "node:fs";
 import { BASE_PROMPT, DEFAULT_PROMPT } from "./prompts.js";
-import {
-  SUPPORTED_RAW_EXTENSIONS,
-  PREVIEW_SETTINGS,
-  XML_PARSER_OPTIONS,
-} from "./constants.js";
+import { PREVIEW_SETTINGS, XML_PARSER_OPTIONS } from "./constants.js";
 import { isPlainObject } from "@sindresorhus/is";
 
 export async function generatePP3FromDngWithBase({
@@ -38,6 +34,7 @@ export async function generatePP3FromDngWithBase({
     "RGB Curves",
     "ColorToning",
   ],
+  previewQuality,
 }: {
   inputPath: string;
   basePP3Path: string;
@@ -47,14 +44,10 @@ export async function generatePP3FromDngWithBase({
   keepPreview?: boolean;
   prompt?: string;
   sections?: string[];
+  previewQuality?: number;
 }): Promise<string> {
   // Validate input file extension
   const extension = inputPath.toLowerCase().slice(inputPath.lastIndexOf("."));
-  if (!SUPPORTED_RAW_EXTENSIONS.includes(extension)) {
-    throw new Error(
-      `Unsupported file type: ${extension}. Supported types: ${SUPPORTED_RAW_EXTENSIONS.join(", ")}`,
-    );
-  }
 
   if (verbose)
     console.log(
@@ -113,11 +106,12 @@ export async function generatePP3FromDngWithBase({
         `Generating preview with quality=${String(PREVIEW_SETTINGS.quality)}`,
       );
     try {
-      await convertDngToJpegWithPP3({
+      await convertDngToImageWithPP3({
         input: inputPath,
         output: previewPath,
         pp3Path: basePP3Path,
-        quality: PREVIEW_SETTINGS.quality,
+        format: "jpeg",
+        quality: previewQuality ?? PREVIEW_SETTINGS.quality,
       });
       previewCreated = true;
       if (verbose) console.log(`Preview file created at ${previewPath}`);
@@ -468,6 +462,7 @@ export async function generatePP3FromDng({
   verbose = false,
   keepPreview = false,
   prompt = DEFAULT_PROMPT,
+  previewQuality,
 }: {
   inputPath: string;
   providerName?: string;
@@ -475,14 +470,10 @@ export async function generatePP3FromDng({
   verbose?: boolean;
   keepPreview?: boolean;
   prompt?: string;
+  previewQuality?: number;
 }): Promise<string> {
   // Validate input file extension
   const extension = inputPath.toLowerCase().slice(inputPath.lastIndexOf("."));
-  if (!SUPPORTED_RAW_EXTENSIONS.includes(extension)) {
-    throw new Error(
-      `Unsupported file type: ${extension}. Supported types: ${SUPPORTED_RAW_EXTENSIONS.join(", ")}`,
-    );
-  }
 
   if (verbose)
     console.log(
@@ -541,10 +532,11 @@ export async function generatePP3FromDng({
         `Generating preview with quality=${String(PREVIEW_SETTINGS.quality)}`,
       );
     try {
-      await convertDngToJpeg({
+      await convertDngToImage({
         input: inputPath,
         output: previewPath,
-        quality: PREVIEW_SETTINGS.quality,
+        format: "jpeg",
+        quality: previewQuality ?? PREVIEW_SETTINGS.quality,
       });
       previewCreated = true;
       if (verbose) console.log(`Preview file created at ${previewPath}`);

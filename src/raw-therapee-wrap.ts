@@ -10,16 +10,22 @@ import fs from "node:fs";
  * @param quality JPEG quality (0-100)
  * @param subsampling JPEG chroma subsampling (1-3)
  */
-export async function convertDngToJpeg({
+export async function convertDngToImage({
   input,
   output,
   quality = 90,
   subsampling = 3,
+  format = "tiff",
+  tiffCompression,
+  bitDepth = 16,
 }: {
   input: string;
   output: string;
   quality?: number;
   subsampling?: number;
+  format?: "jpeg" | "tiff" | "png";
+  tiffCompression?: "z" | "none";
+  bitDepth?: 8 | 16;
 }): Promise<void> {
   // Validate quality parameter
   if (quality < 0 || quality > 100) {
@@ -54,11 +60,32 @@ export async function convertDngToJpeg({
       "-Y", // Overwrite output
       "-o",
       output,
-      `-j${quality.toString()}`,
-      `-js${subsampling.toString()}`,
-      "-c",
-      input,
     ];
+
+    switch (format) {
+      case "jpeg": {
+        cliArguments.push(
+          `-j${quality.toString()}`,
+          `-js${subsampling.toString()}`,
+        );
+
+        break;
+      }
+      case "tiff": {
+        cliArguments.push("-t");
+        if (tiffCompression === "z") cliArguments.push("z");
+
+        break;
+      }
+      case "png": {
+        cliArguments.push("-n");
+
+        break;
+      }
+      // No default
+    }
+
+    cliArguments.push(`-b${bitDepth.toString()}`, "-c", input);
     await execa("rawtherapee-cli", cliArguments);
   } catch (error) {
     throw new Error(
@@ -74,18 +101,24 @@ export async function convertDngToJpeg({
  * @param output Path to output JPEG file
  * @param pp3Path Path to PP3 profile
  */
-export async function convertDngToJpegWithPP3({
+export async function convertDngToImageWithPP3({
   input,
   output,
   pp3Path,
   quality = 100,
   subsampling = 3,
+  format = "tiff",
+  tiffCompression,
+  bitDepth = 16,
 }: {
   input: string;
   output: string;
   pp3Path: string;
   quality?: number;
   subsampling?: number;
+  format?: "jpeg" | "tiff" | "png";
+  tiffCompression?: "z" | "none";
+  bitDepth?: 8 | 16;
 }): Promise<void> {
   if (!pp3Path) {
     throw new Error("PP3 profile path is required");
@@ -115,13 +148,32 @@ export async function convertDngToJpegWithPP3({
       "-Y", // Overwrite output
       "-o",
       output,
-      `-j${quality.toString()}`,
-      `-js${subsampling.toString()}`,
-      "-p",
-      pp3Path,
-      "-c",
-      input,
     ];
+
+    switch (format) {
+      case "jpeg": {
+        cliArguments.push(
+          `-j${quality.toString()}`,
+          `-js${subsampling.toString()}`,
+        );
+
+        break;
+      }
+      case "tiff": {
+        cliArguments.push("-t");
+        if (tiffCompression === "z") cliArguments.push("z");
+
+        break;
+      }
+      case "png": {
+        cliArguments.push("-n");
+
+        break;
+      }
+      // No default
+    }
+
+    cliArguments.push(`-b${bitDepth.toString()}`, "-p", pp3Path, "-c", input);
     await execa("rawtherapee-cli", cliArguments);
   } catch (error) {
     throw new Error(

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { processImage } from "../bin.js";
 import { generatePP3FromDng } from "../agent.js";
-import { convertDngToJpegWithPP3 } from "../raw-therapee-wrap.js";
+import { convertDngToImageWithPP3 } from "../raw-therapee-wrap.js";
 import fs from "node:fs";
 
 // Mock dependencies
@@ -29,7 +29,7 @@ describe("bin.ts", () => {
     vi.clearAllMocks();
     // Default successful mocks
     vi.mocked(generatePP3FromDng).mockResolvedValue(mockPP3Content);
-    vi.mocked(convertDngToJpegWithPP3).mockResolvedValue();
+    vi.mocked(convertDngToImageWithPP3).mockResolvedValue();
     vi.mocked(fs.promises.access).mockResolvedValue();
     vi.mocked(fs.promises.writeFile).mockResolvedValue();
     vi.mocked(fs.promises.unlink).mockResolvedValue();
@@ -57,7 +57,7 @@ describe("bin.ts", () => {
       "gpt-4-vision-preview",
       expect.any(Object),
     );
-    expect(convertDngToJpegWithPP3).toHaveBeenCalledWith(
+    expect(convertDngToImageWithPP3).toHaveBeenCalledWith(
       "input.dng",
       "input_processed.jpg",
       mockPP3Content,
@@ -74,7 +74,7 @@ describe("bin.ts", () => {
 
   it("handles custom JPEG output path", async () => {
     await processImage("input.dng", { output: "custom.jpg" });
-    expect(convertDngToJpegWithPP3).toHaveBeenCalledWith(
+    expect(convertDngToImageWithPP3).toHaveBeenCalledWith(
       "input.dng",
       "custom.jpg",
       mockPP3Content,
@@ -87,7 +87,7 @@ describe("bin.ts", () => {
       "input.pp3",
       mockPP3Content,
     );
-    expect(convertDngToJpegWithPP3).not.toHaveBeenCalled();
+    expect(convertDngToImageWithPP3).not.toHaveBeenCalled();
   });
 
   it("rejects JPEG output with pp3Only", async () => {
@@ -175,7 +175,7 @@ describe("bin.ts", () => {
   });
 
   it("propagates JPEG conversion errors", async () => {
-    vi.mocked(convertDngToJpegWithPP3).mockRejectedValueOnce(
+    vi.mocked(convertDngToImageWithPP3).mockRejectedValueOnce(
       new Error("Conversion failed"),
     );
     await expect(processImage("input.dng")).rejects.toThrow(
