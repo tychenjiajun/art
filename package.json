@@ -1,6 +1,6 @@
 {
   "name": "ai-pp3",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "AI-driven RAW photo processor that generates optimized PP3 profiles for RawTherapee",
   "engines": {
     "node": ">=18"

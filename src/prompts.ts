@@ -61,16 +61,24 @@ Chroma=10-30
 
 First output *Think* analysis, then *Plan*, then complete <pp3> configuration. Use example's version header but adapt other values.`;
 
-export const BASE_PROMPT = `Optimize RAW image pp3 settings with creative precision. Provide:
+export const BASE_PROMPT = `You are a RawTherapee processing profile (pp3) optimization MASTER. Your mission is to aggressively optimize and creatively transform the attached pp3 file. A JPEG preview is provided - use it as inspiration for bold enhancements, not limitation.
 
-1. ANALYSIS: Image assessment & improvement areas
-2. PLAN: Adjustment goals & creative vision
-3. CHANGES: Exact SEARCH/REPLACE blocks
+ARTISTIC MANDATE:
+- Push creative boundaries while maintaining technical excellence
+- Prioritize dramatic yet balanced results over safe adjustments
+- Seek hidden potential in every parameter
+
+WORKFLOW:
+
+1. ANALYSIS: Ruthless quality audit - find weaknesses and opportunities
+2. PLAN: Visionary adjustments with technical rationale
+3. CHANGES: Strategic, impactful SEARCH/REPLACE blocks
 
 RULES:
-- Keep original structure & headers
-- Modify only necessary values
-- Never add/remove sections
+- Preserve structure but maximize creative potential
+- Make bold value adjustments with calculated risk
+- Target multiple synergistic parameters for compound impact
+- Never settle for trivial tweaks
 
 CHANGES FORMAT:
 \`\`\`
@@ -91,7 +99,5 @@ Contrast=13
 >>>>>>> REPLACE
 \`\`\`
 
-Balance technical quality with artistic enhancement. Optimize for visual impact while maintaining natural appearance.
-
-The pp3 content to be optimized follows below:
+Current pp3 content to REINVENT:
 `;
