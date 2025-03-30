@@ -13,6 +13,7 @@ AI-PP3 is an advanced command-line tool that combines multimodal AI analysis wit
 - [AI Configuration](#ai-configuration)
 - [Basic Usage](#basic-usage)
 - [Advanced Features](#advanced-features)
+- [CLI Options](#cli-options)
 - [Roadmap](#roadmap)
 - [FAQ](#faq)
 - [License](#license)
@@ -128,6 +129,43 @@ find . -name '*.NEF' -exec ai-pp3 {} --tiff --compression z \;
 ai-pp3 input.dng \
   --provider openai --model gpt-4-vision-preview \
   --base neutral.pp3 --keep-preview
+```
+
+## CLI Options
+
+### Core Parameters
+- `-o, --output <path>`: Output file path (default: `input.pp3` or `input_processed.[format]`)
+- `--pp3-only`: Generate PP3 file without processing image
+- `-p, --prompt <text>`: Natural language prompt for AI analysis
+
+### AI Configuration
+- `--provider <name>`: AI service provider (`openai`, `anthropic`, `google`, `openai-compatible`)
+- `--model <name>`: Model name (default: `gpt-4-vision-preview`)
+
+### Output Format
+- `--tiff`: Export as TIFF format
+- `--png`: Export as PNG format
+- `--compression <type>`: TIFF compression (`z` or `none`)
+- `--bit-depth <n>`: Bit depth (`8` or `16`)
+- `--quality <n>`: JPEG quality (1-100)
+
+### Advanced Controls
+- `--base <path>`: Base PP3 file for incremental improvements
+- `--sections <list>`: Comma-separated PP3 sections to process (e.g. `Exposure,ColorToning`)
+- `--preview-quality <n>`: Preview JPEG quality (1-100, default: 85)
+- `-v, --verbose`: Enable detailed processing logs
+- `-k, --keep-preview`: Retain preview JPEG after processing
+
+### Examples
+```bash
+# Basic conversion with quality control
+ai-pp3 input.dng --tiff --compression z --bit-depth 16
+
+# Multi-model comparison
+ai-pp3 input.dng --provider anthropic --model claude-3-opus-20240229
+
+# Section-limited processing
+ai-pp3 input.dng --sections Exposure,Detail --pp3-only
 ```
 
 ## Roadmap 

@@ -35,8 +35,3 @@ Thumbs.db
 tmp/
 *.tmp
 *.temp
-
-*.dng
-*.jpg
-*.jpeg
-*.pp3
