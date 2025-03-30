@@ -6,6 +6,10 @@ https://github.com/user-attachments/assets/95bf9e8d-0c97-442d-8068-a5d27e094f18
 
 AI-PP3 is an advanced command-line tool that combines multimodal AI analysis with RawTherapee's processing engine to create optimized development profiles (.pp3 files) for RAW photography. Designed for both automated workflows and creative exploration.
 
+## Usage Examples
+
+See [example documentation](examples/example.md) for practical usage scenarios.
+
 ## Table of Contents
 - [Key Features](#key-features)
 - [Compatibility](#compatibility)

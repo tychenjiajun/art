@@ -6,6 +6,10 @@ https://github.com/user-attachments/assets/95bf9e8d-0c97-442d-8068-a5d27e094f18
 
 AI-PP3 是一款结合多模态AI分析与RawTherapee处理引擎的命令行工具，专注于为RAW摄影优化生成PP3配置文件。支持自动化工作流和创意探索。
 
+## 使用示例
+
+查看[示例文档](examples/example.zh-CN.md)获取实际使用场景。
+
 ## 目录
 
 - [主要特性](#主要特性)
