@@ -1,0 +1,1 @@
+ai-pp3 IMG_0080.CR2 --model google/gemini-2.5-pro-exp-03-25:free --provider openai-compatible --base IMG_0080.CR2.pp3 -o ai.pp3 --preview-quality 90

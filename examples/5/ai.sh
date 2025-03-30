@@ -1,0 +1,1 @@
+ai-pp3 IMGP2426.DNG --model google/gemini-2.5-pro-exp-03-25:free --provider openai-compatible --base IMGP2426.DNG.pp3 -o ai.pp3 --preview-quality 90

@@ -1,0 +1,1 @@
+ai-pp3 2024-03-22_14-28-41.75_DSC5286.nef --model google/gemini-2.5-pro-exp-03-25:free --provider openai-compatible --base 2024-03-22_14-28-41.75_DSC5286.nef.pp3 -o ai.pp3 --preview-quality 90
