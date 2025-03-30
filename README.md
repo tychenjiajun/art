@@ -1,6 +1,8 @@
 # AI-PP3 - AI-Powered RawTherapee Profile Generator
 
-https://github.com/user-attachments/assets/95bf9e8d-0c97-442d-8068-a5d27e094f18
+![Before](/examples/5/IMGP2426.jpg)![After](/examples/5/ai.jpg)
+
+[CC BY-NC-SA 4.0](https://rawpedia.rawtherapee.com/Rawtherapee_Processing_Challenge_feedback)
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](README.md) [![zh-CN](https://img.shields.io/badge/lang-zh--CN-yellow.svg)](README.zh-CN.md) [![npm](https://img.shields.io/npm/dt/ai-pp3.svg)](https://www.npmjs.com/package/ai-pp3)
 
