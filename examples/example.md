@@ -34,24 +34,43 @@ Each example folder contains:
 
 ## AI Processing Workflow
 
-1. **Input**: Base PP3 (unedited RAW profile)
-2. **Generation**: `ai.sh` script uses Gemini 2.5 Pro via OpenRouter API to:
-   - Analyze image characteristics
-   - Generate optimized PP3 file
-3. **Output**: AI-processed JPG and PP3 sidecar file
+1. **Base PP3 Creation**:
+   - Open RAW file in RawTherapee 5.9+
+   - Immediately save as base.pp3 without adjustments
+
+2. **AI Profile Generation**:
+```bash
+# Example from /examples/1/ai.sh
+#!/bin/bash
+export OPENAI_API_KEY=your-key-here
+
+ai-pp3 IMG_0080.CR2 \
+  --provider openrouter \
+  --model google/gemini-pro-1.5 \
+  --base IMG_0080.CR2.pp3 \
+  --output ai.pp3
+```
 
 **Requirements**:
 - RawTherapee 5.9+
 - OpenRouter API key (for Gemini access)
 - Basic command-line knowledge
 
-## Evaluation Guide
+## Evaluation Methodology
 
-Compare results using:
+1. **Technical Comparison**:
 ```bash
-# PP3 diff check
-diff example_folder/base.pp3 example_folder/ai.pp3
+# Structural diff ignoring timestamps
+diff -I '\<Date\>' base.pp3 ai.pp3
+
+# Parameter statistics
+awk -F= '/^[^#]/ {print $1}' ai.pp3 | sort | uniq -c
 ```
+
+2. **Visual Assessment**:
+   - Side-by-side comparison in RawTherapee
+   - Histogram analysis of tone distribution
+   - Zoomed inspection of noise patterns
 
 ## Reference Materials
 
