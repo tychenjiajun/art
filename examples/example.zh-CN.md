@@ -45,7 +45,7 @@
 ```bash
 # 示例：/examples/1/ai.sh
 #!/bin/bash
-export OPENAI_API_KEY=your-key-here
+export OPENROUTER_API_KEY=your-key-here
 
 ai-pp3 IMG_0080.CR2 \
   --provider openrouter \

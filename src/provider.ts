@@ -10,6 +10,7 @@ import { bedrock } from "@ai-sdk/amazon-bedrock";
 import { azure } from "@ai-sdk/azure";
 import { fireworks } from "@ai-sdk/fireworks";
 import { togetherai } from "@ai-sdk/togetherai";
+import { openrouter } from "@openrouter/ai-sdk-provider";
 
 const AVAILABLE_PROVIDERS = [
   "openai",
@@ -23,6 +24,7 @@ const AVAILABLE_PROVIDERS = [
   "azure",
   "fireworks",
   "togetherai",
+  "openrouter",
 ] as const;
 
 type ProviderName = (typeof AVAILABLE_PROVIDERS)[number];
@@ -61,6 +63,9 @@ export function provider(p: string): (modelName: string) => LanguageModelV1 {
     }
     case "togetherai": {
       return togetherai;
+    }
+    case "openrouter": {
+      return openrouter;
     }
     default: {
       throw new Error(

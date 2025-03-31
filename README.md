@@ -145,7 +145,7 @@ ai-pp3 input.dng \
 - `-p, --prompt <text>`: Natural language prompt for AI analysis
 
 ### AI Configuration
-- `--provider <name>`: AI service provider (`openai`, `anthropic`, `google`, `openai-compatible`)
+- `--provider <name>`: AI service provider (`openai`, `anthropic`, `google`, `openrouter`, `openai-compatible`)
 - `--model <name>`: Model name (default: `gpt-4-vision-preview`)
 
 ### Output Format

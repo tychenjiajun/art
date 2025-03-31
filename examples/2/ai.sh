@@ -1,1 +1,1 @@
-ai-pp3 2010_MONTR_033.NEF --model google/gemini-2.5-pro-exp-03-25:free --provider openai-compatible --base 2010_MONTR_033.NEF.pp3 -o ai.pp3 --preview-quality 90
+ai-pp3 2010_MONTR_033.NEF --model google/gemini-2.5-pro-exp-03-25:free --provider openrouter --base 2010_MONTR_033.NEF.pp3 -o ai.pp3 --preview-quality 90

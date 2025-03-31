@@ -1,11 +1,4 @@
-import { XMLParserOptions, PreviewSettings, OutputSettings } from "./types.js";
-
-export const XML_PARSER_OPTIONS: XMLParserOptions = {
-  ignoreAttributes: true,
-  parseTagValue: false,
-  trimValues: true,
-  alwaysCreateTextNode: false,
-};
+import { PreviewSettings, OutputSettings } from "./types.js";
 
 export const PREVIEW_SETTINGS: PreviewSettings = {
   quality: 80,

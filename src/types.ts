@@ -20,13 +20,10 @@ export interface P3GenerationParameters {
   previewQuality?: number;
 }
 
-export interface SearchReplaceResult {
-  original: string;
-  modified: string;
-  changes: number;
+export interface PreviewSettings {
+  quality: number;
 }
 
-export interface PP3Section {
-  name: string;
-  content: string;
+export interface OutputSettings {
+  quality: number;
 }

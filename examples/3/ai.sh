@@ -1,1 +1,1 @@
-ai-pp3 S7_00463.ARW --model google/gemini-2.5-pro-exp-03-25:free --provider openai-compatible --base S7_00463.ARW.pp3 -o ai.pp3 --preview-quality 90
+ai-pp3 S7_00463.ARW --model google/gemini-2.5-pro-exp-03-25:free --provider openrouter --base S7_00463.ARW.pp3 -o ai.pp3 --preview-quality 90
