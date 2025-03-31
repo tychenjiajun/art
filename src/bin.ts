@@ -58,6 +58,7 @@ export async function processImage(
     keepPreview: options.keepPreview,
     prompt: options.prompt,
     sections: options.sections?.split(",").filter((s) => s.trim() !== ""),
+    previewQuality: options.previewQuality,
   });
 
   if (!pp3Content) {

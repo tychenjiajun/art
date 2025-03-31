@@ -20,7 +20,9 @@ AI-PP3 是一款结合多模态AI分析与RawTherapee处理引擎的命令行工
 - [AI配置](#ai配置)
 - [基础用法](#基础用法)
 - [高级功能](#高级功能)
+- [CLI 选项](#cli-选项)
 - [发展路线](#发展路线)
+- [常见问题](#常见问题)
 - [许可证](#许可证)
 
 ## 主要特性
@@ -141,6 +143,43 @@ find . -name '*.NEF' -exec ai-pp3 {} --tiff --compression z \;
 ai-pp3 input.dng \
   --provider openai --model gpt-4-vision-preview \
   --base neutral.pp3 --keep-preview
+```
+
+## CLI 选项
+
+### 核心参数
+- `-o, --output <路径>`: 输出文件路径（默认：`input.pp3` 或 `input_processed.[格式]`）
+- `--pp3-only`: 仅生成PP3文件不输出图像
+- `-p, --prompt <文本>`: 用于AI分析的自然语言提示词
+
+### AI配置
+- `--provider <名称>`: AI服务提供商（`openai`, `anthropic`, `google`, `openrouter`, `openai-compatible`）
+- `--model <名称>`: 模型名称（默认：`gpt-4-vision-preview`）
+
+### 输出格式
+- `--tiff`: 导出为TIFF格式
+- `--png`: 导出为PNG格式
+- `--compression <类型>`: TIFF压缩方式（`z` 或 `none`）
+- `--bit-depth <位数>`: 位深度（`8` 或 `16`）
+- `--quality <数值>`: JPEG质量（1-100）
+
+### 高级控制
+- `--base <路径>`: 用于增量优化的基础PP3文件
+- `--sections <列表>`: 要处理的PP3模块列表（例如：`Exposure,ColorToning`）
+- `--preview-quality <数值>`: 预览图JPEG质量（1-100，默认：85）
+- `-v, --verbose`: 显示详细处理日志
+- `-k, --keep-preview`: 处理后保留预览图
+
+### 使用示例
+```bash
+# 带质量控制的TIFF转换
+ai-pp3 input.dng --tiff --compression z --bit-depth 16
+
+# 多模型对比
+ai-pp3 input.dng --provider anthropic --model claude-3-opus-20240229
+
+# 限定模块处理
+ai-pp3 input.dng --sections Exposure,Detail --pp3-only
 ```
 
 ## 发展路线

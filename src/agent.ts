@@ -1,3 +1,4 @@
+// eslint-disable-next-line unicorn/import-style
 import { basename, dirname, join } from "node:path";
 import {
   convertDngToImage,
@@ -11,6 +12,7 @@ import { handleProviderSetup } from "./utils/ai-provider.js";
 
 import { PreviewImageParameters, P3GenerationParameters } from "./types.js";
 import { parseSearchReplaceBlocks } from "./pp3-parser.js";
+import { BASE_PROMPT } from "./prompts.js";
 
 async function createPreviewImage({
   inputPath,
@@ -49,7 +51,7 @@ export async function generatePP3FromRawImage({
   visionModel = "gpt-4-vision-preview",
   verbose = false,
   keepPreview = false,
-  prompt,
+  prompt = BASE_PROMPT,
   sections = [],
   previewQuality,
 }: P3GenerationParameters): Promise<string> {
@@ -180,46 +182,6 @@ export async function generatePP3FromRawImage({
         ],
       });
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        // Handle common provider errors
-        const errorMessage = error.message.toLowerCase();
-        if (
-          errorMessage.includes("api key") ||
-          errorMessage.includes("authentication")
-        ) {
-          throw new Error(
-            `AI provider authentication failed. Please check your API key for ${providerName}.`,
-          );
-        } else if (
-          errorMessage.includes("quota") ||
-          errorMessage.includes("rate limit")
-        ) {
-          throw new Error(
-            `AI provider rate limit or quota exceeded for ${providerName}. Please try again later.`,
-          );
-        } else if (
-          errorMessage.includes("model") ||
-          errorMessage.includes("not found")
-        ) {
-          throw new Error(
-            `Invalid model '${visionModel}' for provider ${providerName}. Please check available models.`,
-          );
-        } else if (
-          errorMessage.includes("image") ||
-          errorMessage.includes("file size")
-        ) {
-          throw new Error(
-            `Image processing error: ${error.message}. Try reducing the image size or using a different format.`,
-          );
-        } else if (
-          errorMessage.includes("timeout") ||
-          errorMessage.includes("network")
-        ) {
-          throw new Error(
-            `Network error while communicating with ${providerName}. Please check your connection and try again.`,
-          );
-        }
-      }
       throw new Error(
         `AI provider error (${providerName}): ${error instanceof Error ? error.message : "Unknown error"}`,
       );
