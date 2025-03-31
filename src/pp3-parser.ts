@@ -28,6 +28,12 @@ export function parseSearchReplaceBlocks(text: string): SearchReplaceBlock[] {
     } else if (line.startsWith(">>>>>>> REPLACE")) {
       isInSearch = false;
       isInReplace = false;
+      if (currentBlock.search.length > 0 && currentBlock.replace.length > 0) {
+        blocks.push({
+          search: currentBlock.search.join("\n"),
+          replace: currentBlock.replace.join("\n"),
+        });
+      }
       blocks.push({
         search: currentBlock.search.join("\n"),
         replace: currentBlock.replace.join("\n"),
