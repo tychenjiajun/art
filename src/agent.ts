@@ -1,38 +1,16 @@
-// eslint-disable-next-line unicorn/import-style
 import { basename, dirname, join } from "node:path";
 import {
   convertDngToImage,
   convertDngToImageWithPP3,
 } from "./raw-therapee-wrap.js";
 import { generateText } from "ai";
-import { provider } from "./provider.js";
 import fs from "node:fs";
-import { BASE_PROMPT } from "./prompts.js";
 import { PREVIEW_SETTINGS } from "./constants.js";
+import { validateFileAccess, handleFileError } from "./utils/validation.js";
+import { handleProviderSetup } from "./utils/ai-provider.js";
 
-async function validateFileAccess(filePath: string, mode: "read" | "write") {
-  try {
-    await fs.promises.access(
-      filePath,
-      mode === "read" ? fs.constants.R_OK : fs.constants.W_OK,
-    );
-  } catch (error: unknown) {
-    if (error instanceof Error && "code" in error) {
-      if (error.code === "ENOENT") {
-        throw new Error(
-          `${mode === "read" ? "File" : "Directory"} not found: ${filePath}`,
-        );
-      } else if (error.code === "EACCES") {
-        throw new Error(
-          `Permission denied ${mode === "read" ? "reading" : "writing"} ${filePath}`,
-        );
-      }
-    }
-    throw new Error(
-      `Error accessing ${filePath}: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
-  }
-}
+import { PreviewImageParameters, P3GenerationParameters } from "./types.js";
+import { parseSearchReplaceBlocks } from "./pp3-parser.js";
 
 async function createPreviewImage({
   inputPath,
@@ -40,13 +18,7 @@ async function createPreviewImage({
   basePP3Path,
   quality,
   verbose,
-}: {
-  inputPath: string;
-  previewPath: string;
-  basePP3Path?: string;
-  quality: number;
-  verbose?: boolean;
-}) {
+}: PreviewImageParameters) {
   try {
     await (basePP3Path
       ? convertDngToImageWithPP3({
@@ -70,44 +42,6 @@ async function createPreviewImage({
   }
 }
 
-function handleFileError(
-  error: unknown,
-  filePath: string,
-  operation: "read" | "write",
-) {
-  if (error instanceof Error && "code" in error) {
-    if (error.code === "ENOENT") {
-      throw new Error(`File not found during ${operation}: ${filePath}`);
-    } else if (error.code === "EACCES") {
-      throw new Error(`Permission denied ${operation}ing file: ${filePath}`);
-    }
-  }
-  throw new Error(
-    `Error ${operation}ing file ${filePath}: ${error instanceof Error ? error.message : "Unknown error"}`,
-  );
-}
-
-function handleProviderSetup(providerName: string, visionModel: string) {
-  try {
-    return provider(providerName)(visionModel);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      if (error.message.includes("not supported")) {
-        throw new Error(
-          `Provider ${providerName} is not supported. Available providers: openai, openai-compatible, anthropic, google, xai`,
-        );
-      } else if (error.message.includes("model")) {
-        throw new Error(
-          `Model ${visionModel} is not supported by provider ${providerName}. Please check available models.`,
-        );
-      }
-    }
-    throw new Error(
-      `Invalid AI provider or model: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
-  }
-}
-
 export async function generatePP3FromRawImage({
   inputPath,
   basePP3Path,
@@ -115,36 +49,10 @@ export async function generatePP3FromRawImage({
   visionModel = "gpt-4-vision-preview",
   verbose = false,
   keepPreview = false,
-  prompt = BASE_PROMPT,
-  sections = [
-    "Exposure",
-    "Retinex",
-    "Local Contrast",
-    "Wavlet",
-    "Vibrance",
-    "White Balance",
-    "Color appearance",
-    "Shadows & Highlights",
-    "RGB Curves",
-    "ColorToning",
-    "ToneEqualizer",
-    "Sharpening",
-    "Defringing",
-    "Dehaze",
-    "Directional Pyramid Denoising",
-  ],
+  prompt,
+  sections = [],
   previewQuality,
-}: {
-  inputPath: string;
-  basePP3Path?: string;
-  providerName?: string;
-  visionModel?: string;
-  verbose?: boolean;
-  keepPreview?: boolean;
-  prompt?: string;
-  sections?: string[];
-  previewQuality?: number;
-}): Promise<string> {
+}: P3GenerationParameters): Promise<string> {
   // Validate input file extension
   const extension = inputPath.toLowerCase().slice(inputPath.lastIndexOf("."));
 
@@ -330,47 +238,7 @@ export async function generatePP3FromRawImage({
 
     // parse search/replace blocks
     // 解析搜索/替换块
-    function parse_search_replace_blocks(
-      text: string,
-    ): { search: string; replace: string }[] {
-      const blocks: { search: string; replace: string }[] = [];
-      let current_block: { search: string[]; replace: string[] } = {
-        search: [],
-        replace: [],
-      };
-
-      let isInSearch = false;
-      let isInReplace = false;
-
-      // Split text into lines and iterate through them
-      const lines = text.split("\n");
-      for (const line of lines) {
-        if (line.startsWith("<<<<<<< SEARCH")) {
-          isInSearch = true;
-          isInReplace = false;
-          current_block = { search: [], replace: [] };
-        } else if (line.startsWith("=======")) {
-          isInSearch = false;
-          isInReplace = true;
-        } else if (line.startsWith(">>>>>>> REPLACE")) {
-          isInSearch = false;
-          isInReplace = false;
-          blocks.push({
-            search: current_block.search.join("\n"),
-            replace: current_block.replace.join("\n"),
-          });
-        } else {
-          if (isInSearch) {
-            current_block.search.push(line);
-          } else if (isInReplace) {
-            current_block.replace.push(line);
-          }
-        }
-      }
-
-      return blocks;
-    }
-    const searchReplaceBlocks = parse_search_replace_blocks(responseText);
+    const searchReplaceBlocks = parseSearchReplaceBlocks(responseText);
 
     if (searchReplaceBlocks.length === 0) {
       if (verbose) console.log("No valid search/replace blocks found");
