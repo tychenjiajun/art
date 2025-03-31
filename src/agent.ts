@@ -1,4 +1,3 @@
-import { XMLParser } from "fast-xml-parser";
 // eslint-disable-next-line unicorn/import-style
 import { basename, dirname, join } from "node:path";
 import {
@@ -8,9 +7,8 @@ import {
 import { generateText } from "ai";
 import { provider } from "./provider.js";
 import fs from "node:fs";
-import { BASE_PROMPT, DEFAULT_PROMPT } from "./prompts.js";
-import { PREVIEW_SETTINGS, XML_PARSER_OPTIONS } from "./constants.js";
-import { isPlainObject } from "@sindresorhus/is";
+import { BASE_PROMPT } from "./prompts.js";
+import { PREVIEW_SETTINGS } from "./constants.js";
 
 async function validateFileAccess(filePath: string, mode: "read" | "write") {
   try {
@@ -110,7 +108,7 @@ function handleProviderSetup(providerName: string, visionModel: string) {
   }
 }
 
-export async function generatePP3FromDngWithBase({
+export async function generatePP3FromRawImage({
   inputPath,
   basePP3Path,
   providerName = "openai",
@@ -138,7 +136,7 @@ export async function generatePP3FromDngWithBase({
   previewQuality,
 }: {
   inputPath: string;
-  basePP3Path: string;
+  basePP3Path?: string;
   providerName?: string;
   visionModel?: string;
   verbose?: boolean;
@@ -182,6 +180,8 @@ export async function generatePP3FromDngWithBase({
       quality: previewQuality ?? PREVIEW_SETTINGS.quality,
       verbose,
     });
+
+    basePP3Path = basePP3Path ?? previewPath + ".pp3";
 
     // Read preview file
     let imageData: Buffer | undefined = undefined;
@@ -452,222 +452,7 @@ export async function generatePP3FromDngWithBase({
     if (previewCreated && !keepPreview) {
       try {
         await fs.promises.unlink(previewPath);
-        if (verbose) console.log("Preview file cleaned up");
-      } catch (cleanupError: unknown) {
-        if (
-          cleanupError instanceof Error &&
-          "code" in cleanupError &&
-          verbose
-        ) {
-          if (cleanupError.code === "ENOENT") {
-            console.warn("Preview file was already deleted");
-          } else if (cleanupError.code === "EACCES") {
-            console.warn(
-              "Permission denied deleting preview file:",
-              cleanupError.message,
-            );
-          } else {
-            console.warn(
-              "Failed to clean up preview file:",
-              cleanupError.message,
-            );
-          }
-        }
-      }
-    }
-  }
-}
-
-export async function generatePP3FromDng({
-  inputPath,
-  providerName = "openai",
-  visionModel = "gpt-4-vision-preview",
-  verbose = false,
-  keepPreview = false,
-  prompt = DEFAULT_PROMPT,
-  previewQuality,
-}: {
-  inputPath: string;
-  providerName?: string;
-  visionModel?: string;
-  verbose?: boolean;
-  keepPreview?: boolean;
-  prompt?: string;
-  previewQuality?: number;
-}): Promise<string> {
-  // Validate input file extension
-  const extension = inputPath.toLowerCase().slice(inputPath.lastIndexOf("."));
-
-  if (verbose)
-    console.log(
-      `Analyzing image ${inputPath} with ${providerName} model ${visionModel}`,
-    );
-
-  // Generate preview path in same directory as input file
-  const previewPath = join(
-    dirname(inputPath),
-    `${basename(inputPath, extension)}_preview.jpg`,
-  );
-
-  let previewCreated = false;
-
-  try {
-    // Verify input file exists and is readable
-    await validateFileAccess(inputPath, "read");
-
-    // Check if preview path is writable
-    await validateFileAccess(dirname(previewPath), "write");
-
-    // Create preview with specific quality settings
-    if (verbose)
-      console.log(
-        `Generating preview with quality=${String(PREVIEW_SETTINGS.quality)}`,
-      );
-    previewCreated = await createPreviewImage({
-      inputPath,
-      previewPath,
-      quality: previewQuality ?? PREVIEW_SETTINGS.quality,
-      verbose,
-    });
-
-    // Read preview file
-    let imageData: Buffer | undefined;
-    try {
-      imageData = await fs.promises.readFile(previewPath);
-      if (verbose) console.log("Preview file read successfully");
-    } catch (error: unknown) {
-      handleFileError(error, previewPath, "read");
-    }
-
-    if (imageData == null) {
-      throw new Error("Failed to read preview image data");
-    }
-
-    const aiProvider = handleProviderSetup(providerName, visionModel);
-
-    // Generate PP3 using AI
-    if (verbose) console.log("Sending request to AI provider...");
-    let response;
-    try {
-      response = await generateText({
-        model: aiProvider,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: prompt,
-              },
-              {
-                type: "image",
-                image: imageData,
-              },
-            ],
-          },
-        ],
-      });
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        // Handle common provider errors
-        const errorMessage = error.message.toLowerCase();
-        if (
-          errorMessage.includes("api key") ||
-          errorMessage.includes("authentication")
-        ) {
-          throw new Error(
-            `AI provider authentication failed. Please check your API key for ${providerName}.`,
-          );
-        } else if (
-          errorMessage.includes("quota") ||
-          errorMessage.includes("rate limit")
-        ) {
-          throw new Error(
-            `AI provider rate limit or quota exceeded for ${providerName}. Please try again later.`,
-          );
-        } else if (
-          errorMessage.includes("model") ||
-          errorMessage.includes("not found")
-        ) {
-          throw new Error(
-            `Invalid model '${visionModel}' for provider ${providerName}. Please check available models.`,
-          );
-        } else if (
-          errorMessage.includes("image") ||
-          errorMessage.includes("file size")
-        ) {
-          throw new Error(
-            `Image processing error: ${error.message}. Try reducing the image size or using a different format.`,
-          );
-        } else if (
-          errorMessage.includes("timeout") ||
-          errorMessage.includes("network")
-        ) {
-          throw new Error(
-            `Network error while communicating with ${providerName}. Please check your connection and try again.`,
-          );
-        }
-      }
-      throw new Error(
-        `AI provider error (${providerName}): ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
-    }
-
-    // Extract response text
-    const _responseText =
-      typeof response === "string" ? response : response.text;
-    const responseText = _responseText.includes("</pp3>")
-      ? _responseText
-      : _responseText.replaceAll("```pp3", "<pp3>").replaceAll("```", "</pp3>");
-
-    if (!responseText) {
-      throw new Error("AI response was empty or in an unexpected format");
-    }
-
-    if (verbose)
-      console.log("Received response from AI provider:", responseText);
-
-    // Parse XML to extract PP3 content
-    const parser = new XMLParser(XML_PARSER_OPTIONS);
-    let result: unknown;
-    try {
-      result = parser.parse(responseText);
-    } catch (error: unknown) {
-      throw new Error(
-        `Failed to parse AI response as XML: ${error instanceof Error ? error.message : "Unknown error"}\n` +
-          `Response preview: ${responseText}`,
-      );
-    }
-
-    if (
-      !isPlainObject(result) ||
-      !("pp3" in result) ||
-      !result.pp3 ||
-      typeof result.pp3 !== "string"
-    ) {
-      throw new Error(
-        `AI response did not contain PP3 content in <pp3> tags.\n` +
-          `Response preview: ${responseText}`,
-      );
-    }
-
-    if (verbose) console.log("Successfully generated PP3 profile");
-    return result.pp3;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      if (verbose) {
-        console.error("Error during PP3 generation:");
-        console.error(error.message);
-        if (error.stack) console.error(error.stack);
-      }
-      throw error;
-    }
-    throw new Error(`Unknown error during PP3 generation: ${String(error)}`);
-  } finally {
-    // Clean up preview file in finally block unless keepPreview is true
-    if (previewCreated && !keepPreview) {
-      try {
-        await fs.promises.unlink(previewPath);
+        await fs.promises.unlink(previewPath + ".pp3");
         if (verbose) console.log("Preview file cleaned up");
       } catch (cleanupError: unknown) {
         if (

@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import { convertDngToImageWithPP3 } from "./raw-therapee-wrap.js";
-import { generatePP3FromDng, generatePP3FromDngWithBase } from "./agent.js";
+import { generatePP3FromRawImage } from "./agent.js";
 import fs from "node:fs";
 import packageJson from "../package.json" with { type: "json" };
 
@@ -47,29 +47,18 @@ export async function processImage(
   }
 
   // Generate PP3 content
-  const pp3Content = options.base
-    ? await generatePP3FromDngWithBase({
-        inputPath,
-        basePP3Path: options.base,
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        providerName: options.provider || "openai",
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        visionModel: options.model || "gpt-4-vision-preview",
-        verbose: options.verbose,
-        keepPreview: options.keepPreview,
-        prompt: options.prompt,
-        sections: options.sections?.split(",").filter((s) => s.trim() !== ""),
-      })
-    : await generatePP3FromDng({
-        inputPath,
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        providerName: options.provider || "openai",
-        // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        visionModel: options.model || "gpt-4-vision-preview",
-        verbose: options.verbose,
-        keepPreview: options.keepPreview,
-        prompt: options.prompt,
-      });
+  const pp3Content = await generatePP3FromRawImage({
+    inputPath,
+    basePP3Path: options.base,
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    providerName: options.provider || "openai",
+    // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+    visionModel: options.model || "gpt-4-vision-preview",
+    verbose: options.verbose,
+    keepPreview: options.keepPreview,
+    prompt: options.prompt,
+    sections: options.sections?.split(",").filter((s) => s.trim() !== ""),
+  });
 
   if (!pp3Content) {
     throw new Error("Failed to generate PP3 content");
