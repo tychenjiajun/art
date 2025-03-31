@@ -5,36 +5,40 @@ ARTISTIC MANDATE:
 - Prioritize dramatic yet balanced results over safe adjustments
 - Seek hidden potential in every parameter
 
-WORKFLOW:
+Key Rules:
+1. Only modify existing parameter values
+2. Keep original section order and parameter order
+3. One section per SEARCH/REPLACE block
+4. Make bold, creative enhancements
 
-1. ANALYSIS: Ruthless quality audit - find weaknesses and opportunities
-2. PLAN: Visionary adjustments with technical rationale
-3. CHANGES: Strategic, impactful SEARCH/REPLACE blocks
+Output Format:
 
-RULES:
-- Preserve structure but maximize creative potential
-- Make bold value adjustments with calculated risk
-- Target multiple synergistic parameters for compound impact
-- Never settle for trivial tweaks
+ANALYSIS:
+- Current issues and creative opportunities
 
-CHANGES FORMAT:
+PLAN:
+- Coordinated parameter changes with expected impact
+
+EXECUTION:
+
 \`\`\`
 <<<<<<< SEARCH
 [Exposure]
 Auto=false
 Clip=0.02
 Compensation=0
-Brightness=0
-Contrast=0
 =======
 [Exposure]
 Auto=false
-Clip=0.02
-Compensation=-0.5
-Brightness=25
-Contrast=13
+Clip=0.15
+Compensation=-0.7
 >>>>>>> REPLACE
 \`\`\`
 
-Current pp3 content to REINVENT:
+[Additional changes following these rules]
+- Maintain exact parameter order in every block
+- Never change section headers
+- 1 section per block maximum
+
+Current pp3 to transform:
 `;

@@ -52,8 +52,24 @@ export async function generatePP3FromRawImage({
   verbose = false,
   keepPreview = false,
   prompt = BASE_PROMPT,
-  sections = [],
-  previewQuality,
+  sections = [
+    "Exposure",
+    "Retinex",
+    "Local Contrast",
+    "Wavlet",
+    "Vibrance",
+    "White Balance",
+    "Color appearance",
+    "Shadows & Highlights",
+    "RGB Curves",
+    "ColorToning",
+    "ToneEqualizer",
+    "Sharpening",
+    "Defringing",
+    "Dehaze",
+    "Directional Pyramid Denoising",
+  ],
+  previewQuality = PREVIEW_SETTINGS.quality,
 }: P3GenerationParameters): Promise<string> {
   // Validate input file extension
   const extension = inputPath.toLowerCase().slice(inputPath.lastIndexOf("."));
@@ -80,14 +96,12 @@ export async function generatePP3FromRawImage({
 
     // Create preview with specific quality settings
     if (verbose)
-      console.log(
-        `Generating preview with quality=${String(PREVIEW_SETTINGS.quality)}`,
-      );
+      console.log(`Generating preview with quality=${String(previewQuality)}`);
     previewCreated = await createPreviewImage({
       inputPath,
       previewPath,
       basePP3Path,
-      quality: previewQuality ?? PREVIEW_SETTINGS.quality,
+      quality: previewQuality,
       verbose,
     });
 
@@ -160,7 +174,8 @@ export async function generatePP3FromRawImage({
     const toBeEdited = includedSections.join("\n");
     const extractedText = `${prompt}\n\n${toBeEdited}`;
     // Generate PP3 using AI
-    if (verbose) console.log("Sending request to AI provider...");
+    if (verbose)
+      console.log("Sending request to AI provider...", extractedText);
     let response;
     try {
       response = await generateText({
@@ -200,7 +215,9 @@ export async function generatePP3FromRawImage({
 
     // parse search/replace blocks
     // 解析搜索/替换块
-    const searchReplaceBlocks = parseSearchReplaceBlocks(responseText);
+    const searchReplaceBlocks = parseSearchReplaceBlocks(
+      responseText.replaceAll("```", ""),
+    );
 
     if (searchReplaceBlocks.length === 0) {
       if (verbose) console.log("No valid search/replace blocks found");
