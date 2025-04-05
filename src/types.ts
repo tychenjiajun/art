@@ -16,6 +16,7 @@ export interface P3GenerationParameters {
   verbose?: boolean;
   keepPreview?: boolean;
   prompt?: string;
+  preset?: string;
   sections?: string[];
   previewQuality?: number;
 }

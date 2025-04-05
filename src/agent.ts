@@ -12,7 +12,116 @@ import { handleProviderSetup } from "./utils/ai-provider.js";
 
 import { PreviewImageParameters, P3GenerationParameters } from "./types.js";
 import { parseSearchReplaceBlocks } from "./pp3-parser.js";
-import { BASE_PROMPT } from "./prompts.js";
+import { getPromptByPreset } from "./prompts.js";
+
+export interface SectionResult {
+  sections: string[];
+  sectionOrders: string[];
+}
+
+export interface SectionWithFilter extends SectionResult {
+  includedSections: string[];
+  excludedSections: string[];
+}
+
+/**
+ * Base function to split content into sections based on section headers in square brackets
+ * @param content - The content to split into sections
+ * @param processSection - Optional callback to process each section as it's found
+ * @returns Object containing sections and their order
+ */
+export function splitContentBySections(
+  content: string,
+  processSection?: (
+    section: string,
+    sectionName: string,
+    index: number,
+  ) => void,
+): SectionResult {
+  if (!content.trim()) {
+    return { sections: [], sectionOrders: [] };
+  }
+
+  const lines = content.split("\n");
+  const sections: string[] = [];
+  const sectionOrders: string[] = [];
+
+  let currentSection = "";
+  let currentSectionName = "";
+  let sectionIndex = 0;
+  let inSection = false;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (trimmedLine.startsWith("[")) {
+      if (inSection && currentSection) {
+        sections.push(currentSection.trim());
+        if (processSection) {
+          processSection(
+            currentSection.trim(),
+            currentSectionName,
+            sectionIndex,
+          );
+        }
+        sectionIndex++;
+      }
+
+      const sectionName = trimmedLine.slice(1, -1);
+      currentSection = line;
+      currentSectionName = sectionName;
+      sectionOrders.push(sectionName);
+      inSection = true;
+    } else if (inSection) {
+      currentSection += `\n${line}`;
+    }
+  }
+
+  // Handle the last section
+  if (inSection && currentSection) {
+    sections.push(currentSection.trim());
+    if (processSection) {
+      processSection(currentSection.trim(), currentSectionName, sectionIndex);
+    }
+  }
+
+  return { sections, sectionOrders };
+}
+
+/**
+ * Splits PP3 content into sections and categorizes them based on provided section names
+ * @param content - The PP3 file content as a string
+ * @param sectionNames - Array of section names to include
+ * @returns Object containing included sections, excluded sections, and section order
+ */
+export function splitPP3ContentBySections(
+  content: string,
+  sectionNames: string[],
+): SectionWithFilter {
+  const includedSections: string[] = [];
+  const excludedSections: string[] = [];
+
+  const { sections, sectionOrders } = splitContentBySections(
+    content,
+    (section, sectionName) => {
+      if (sectionNames.includes(sectionName)) {
+        includedSections.push(section);
+      } else {
+        excludedSections.push(section);
+      }
+    },
+  );
+
+  return { sections, sectionOrders, includedSections, excludedSections };
+}
+
+/**
+ * Splits content into sections based on section headers in square brackets
+ * @param content - The content to split into sections
+ * @returns Object containing sections and their order
+ */
+export function splitContentIntoSections(content: string): SectionResult {
+  return splitContentBySections(content);
+}
 
 async function createPreviewImage({
   inputPath,
@@ -51,7 +160,8 @@ export async function generatePP3FromRawImage({
   visionModel = "gpt-4-vision-preview",
   verbose = false,
   keepPreview = false,
-  prompt = BASE_PROMPT,
+  prompt,
+  preset = "aggressive",
   sections = [
     "Exposure",
     "Retinex",
@@ -105,7 +215,7 @@ export async function generatePP3FromRawImage({
       verbose,
     });
 
-    basePP3Path = basePP3Path ?? previewPath + ".pp3";
+    basePP3Path = basePP3Path ?? `${previewPath}.pp3`;
 
     // Read preview file
     let imageData: Buffer | undefined = undefined;
@@ -130,49 +240,15 @@ export async function generatePP3FromRawImage({
       handleFileError(error, basePP3Path, "read");
     }
 
-    const lines = basePP3Content?.split("\n") ?? [];
-
-    const includedSections: string[] = [];
-    const excludedSections: string[] = [];
-
-    const sectionOrders: string[] = []; // 明确类型为 string[]
-
-    let currentSection = "";
-    let currentSectionName = "";
-
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      if (trimmedLine.startsWith("[")) {
-        if (currentSection) {
-          if (sections.includes(currentSectionName)) {
-            includedSections.push(currentSection);
-          } else {
-            excludedSections.push(currentSection);
-          }
-        }
-
-        const sectionName = trimmedLine.slice(1, -1);
-        currentSection = trimmedLine;
-        currentSectionName = sectionName;
-        sectionOrders.push(sectionName);
-      } else {
-        currentSection += `\n${trimmedLine}`;
-      }
-    }
-
-    // 处理最后一个 section
-    if (currentSection) {
-      if (sections.includes(currentSectionName)) {
-        includedSections.push(currentSection);
-      } else {
-        excludedSections.push(currentSection);
-      }
-    }
+    const { includedSections, excludedSections, sectionOrders } =
+      splitPP3ContentBySections(basePP3Content ?? "", sections);
 
     const aiProvider = handleProviderSetup(providerName, visionModel);
 
     const toBeEdited = includedSections.join("\n");
-    const extractedText = `${prompt}\n\n${toBeEdited}`;
+    // Use provided prompt or get it from preset
+    const promptText = prompt ?? getPromptByPreset(preset);
+    const extractedText = `${promptText}\n\n${toBeEdited}`;
     // Generate PP3 using AI
     if (verbose)
       console.log("Sending request to AI provider...", extractedText);
@@ -244,29 +320,7 @@ export async function generatePP3FromRawImage({
       pp3Content = pp3Content.replace(search.trim(), replace.trim());
     }
 
-    const editedLines = pp3Content.split("\n");
-
-    const editedSections: string[] = [];
-
-    currentSection = "";
-
-    for (const line of editedLines) {
-      const trimmedLine = line.trim();
-      if (trimmedLine.startsWith("[")) {
-        if (currentSection !== "") {
-          editedSections.push(currentSection);
-          currentSection = "";
-        }
-        currentSection = line;
-      } else {
-        currentSection += `\n${line}`;
-      }
-    }
-
-    // 处理最后一个 section
-    if (currentSection) {
-      editedSections.push(currentSection);
-    }
+    const { sections: editedSections } = splitContentIntoSections(pp3Content);
 
     return sectionOrders
       .map((sectionName) => {
@@ -299,7 +353,7 @@ export async function generatePP3FromRawImage({
     if (previewCreated && !keepPreview) {
       try {
         await fs.promises.unlink(previewPath);
-        await fs.promises.unlink(previewPath + ".pp3");
+        await fs.promises.unlink(`${previewPath}.pp3`);
         if (verbose) console.log("Preview file cleaned up");
       } catch (cleanupError: unknown) {
         if (

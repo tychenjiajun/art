@@ -24,7 +24,7 @@ See [example documentation](examples/example.md) for practical usage scenarios.
 - [FAQ](#faq)
 - [License](#license)
 
-## Key Features 
+## Key Features
 - 🖼️ AI-driven analysis of RAW files (DNG/NEF/CR2/ARW)
 - ⚡ Batch PP3 creation with consistent processing parameters
 - 📝 Customizable development settings through natural language prompts
@@ -32,7 +32,7 @@ See [example documentation](examples/example.md) for practical usage scenarios.
 - 🎚️ Fine-grained control over PP3 sections (Exposure, Color, Detail)
 - 🔍 Interactive preview generation with quality controls
 
-## Compatibility 
+## Compatibility
 ### Supported Formats
 - **RAW Files**: All RawTherapee-supported formats including:
   - Common: CR2/CR3, NEF, ARW, RAF, DNG
@@ -57,7 +57,7 @@ npm install -g ai-pp3
 ai-pp3 --version
 ```
 
-## AI Configuration 
+## AI Configuration
 ### Provider Setup
 ```bash
 # Environment variables (.env file)
@@ -75,7 +75,7 @@ ai-pp3 input.dng --provider anthropic --model claude-3-opus-20240229
 ai-pp3 input.dng --provider openai-compatible --model llama3:8b-instruct-q5_K_M
 ```
 
-## Basic Usage 
+## Basic Usage
 ```bash
 # Basic processing with defaults
 ai-pp3 input.dng -o output.jpg
@@ -119,7 +119,7 @@ ai-pp3 input.dng --sections Exposure,ColorToning
 ai-pp3 input.dng --base existing.pp3 --preview-quality 85
 ```
 
-## Advanced Features 
+## Advanced Features
 ### Batch Processing
 ```bash
 # Parallel processing (GNU Parallel)
@@ -143,6 +143,7 @@ ai-pp3 input.dng \
 - `-o, --output <path>`: Output file path (default: `input.pp3` or `input_processed.[format]`)
 - `--pp3-only`: Generate PP3 file without processing image
 - `-p, --prompt <text>`: Natural language prompt for AI analysis
+- `--preset <name>`: Preset style to use (`aggressive`, `creative`, `balanced`, `technical`)
 
 ### AI Configuration
 - `--provider <name>`: AI service provider (`openai`, `anthropic`, `google`, `openrouter`, `openai-compatible`)
@@ -174,7 +175,7 @@ ai-pp3 input.dng --provider anthropic --model claude-3-opus-20240229
 ai-pp3 input.dng --sections Exposure,Detail --pp3-only
 ```
 
-## Roadmap 
+## Roadmap
 - [ ] ART (.arp) profile compatibility
 
 ## FAQ

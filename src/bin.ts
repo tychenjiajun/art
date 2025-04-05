@@ -15,6 +15,7 @@ interface ProcessImageOptions {
   keepPreview?: boolean;
   quality?: number;
   prompt?: string;
+  preset?: string;
   base?: string;
   sections?: string;
   tiff?: boolean;
@@ -57,6 +58,7 @@ export async function processImage(
     verbose: options.verbose,
     keepPreview: options.keepPreview,
     prompt: options.prompt,
+    preset: options.preset,
     sections: options.sections?.split(",").filter((s) => s.trim() !== ""),
     previewQuality: options.previewQuality,
   });
@@ -105,6 +107,11 @@ program
   )
   .option("--pp3-only", "Only generate PP3 file without processing the image")
   .option("-p, --prompt <text>", "Prompt text for AI analysis")
+  .option(
+    "--preset <name>",
+    "Preset style to use (aggressive, creative, balanced, technical)",
+    "aggressive",
+  )
   .option("--provider <n>", "AI provider to use", "openai")
   .option("--model <n>", "Model name to use", "gpt-4-vision-preview")
   .option("-v, --verbose", "Enable verbose logging")

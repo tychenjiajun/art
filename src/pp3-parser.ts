@@ -34,10 +34,6 @@ export function parseSearchReplaceBlocks(text: string): SearchReplaceBlock[] {
           replace: currentBlock.replace.join("\n"),
         });
       }
-      blocks.push({
-        search: currentBlock.search.join("\n"),
-        replace: currentBlock.replace.join("\n"),
-      });
     } else {
       if (isInSearch) currentBlock.search.push(line);
       if (isInReplace) currentBlock.replace.push(line);

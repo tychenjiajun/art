@@ -148,15 +148,19 @@ ai-pp3 input.dng \
 ## CLI 选项
 
 ### 核心参数
+
 - `-o, --output <路径>`: 输出文件路径（默认：`input.pp3` 或 `input_processed.[格式]`）
 - `--pp3-only`: 仅生成PP3文件不输出图像
 - `-p, --prompt <文本>`: 用于AI分析的自然语言提示词
+- `--preset <名称>`: 预设风格（`aggressive`激进, `creative`创意, `balanced`平衡, `technical`技术）
 
 ### AI配置
+
 - `--provider <名称>`: AI服务提供商（`openai`, `anthropic`, `google`, `openrouter`, `openai-compatible`）
 - `--model <名称>`: 模型名称（默认：`gpt-4-vision-preview`）
 
 ### 输出格式
+
 - `--tiff`: 导出为TIFF格式
 - `--png`: 导出为PNG格式
 - `--compression <类型>`: TIFF压缩方式（`z` 或 `none`）
@@ -164,6 +168,7 @@ ai-pp3 input.dng \
 - `--quality <数值>`: JPEG质量（1-100）
 
 ### 高级控制
+
 - `--base <路径>`: 用于增量优化的基础PP3文件
 - `--sections <列表>`: 要处理的PP3模块列表（例如：`Exposure,ColorToning`）
 - `--preview-quality <数值>`: 预览图JPEG质量（1-100，默认：85）
@@ -171,6 +176,7 @@ ai-pp3 input.dng \
 - `-k, --keep-preview`: 处理后保留预览图
 
 ### 使用示例
+
 ```bash
 # 带质量控制的TIFF转换
 ai-pp3 input.dng --tiff --compression z --bit-depth 16
